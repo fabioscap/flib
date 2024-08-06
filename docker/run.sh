@@ -9,8 +9,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Change the working directory to the script's directory
 cd "$SCRIPT_DIR/.."
 
-# share the whole folder
-SF_NAME="fodom"
+SF_NAME="sources"
 
 IMAGE_NAME="fabioscap/fodom"
 CONTAINER_NAME="fodom"
