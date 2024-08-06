@@ -1,8 +1,12 @@
 #include <iostream>
 
-#include "fodom/lib.h"
-
+#include "fodom/model.h"
+using namespace fodom;
 int main() {
-  std::cout << fodom::f() << std::endl;
+  using ModelType = IMUInput;
+
+  ModelType::StateType S;
+  std::cout << S << "\n";
+  std::cout << fwd<ModelType>(S, Vector_<Scalar, 6>::Ones(), 1) << "\n";
   return 0;
 }

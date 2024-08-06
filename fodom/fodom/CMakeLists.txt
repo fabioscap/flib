@@ -6,10 +6,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 
-find_package(Eigen3 REQUIRED)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 
 add_library(fodom SHARED src/lib.cpp)
+target_link_libraries(fodom PUBLIC Eigen3::Eigen)
 
 target_include_directories(fodom
     PUBLIC
