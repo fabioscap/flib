@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "fodom/common.h"
-#include "fodom/math.h"
 
 namespace fodom {
 
@@ -143,34 +142,6 @@ ManifoldBase_<DataType_, dim_>::boxminus(const ThisType&) const {
 template <typename Manifold>
 ManifoldComp_<Manifold>::ManifoldComp_(const Manifold& m) : manifold_(m) {}
 
-ManifoldSO3::ManifoldSO3() : BaseType(DataType::Identity()) {}
-ManifoldSO3::ManifoldSO3(const DataType& data) : BaseType(data) {}
-
-ManifoldSO3 ManifoldSO3::boxplus(const TangentType& dsp) const {
-  DataType R = data() * expMapSO3(dsp);
-  fixRotation(R);
-  return ManifoldSO3(R);
-}
-ManifoldSO3::TangentType ManifoldSO3::boxminus(const ManifoldSO3& to) const {
-  DataType R = data_.transpose() * to.data();
-  return logMapSO3(R.eval());
-}
-
-ManifoldSO2::ManifoldSO2() : BaseType(0.0) {}
-ManifoldSO2::ManifoldSO2(const DataType& data) : BaseType(data) {}
-
-ManifoldSO2 ManifoldSO2::boxplus(const TangentType& dsp) const {
-  Scalar s = std::sin(data() + dsp(0));
-  Scalar c = std::cos(data() + dsp(0));
-  return ManifoldSO2(std::atan2(s, c));
-}
-
-ManifoldSO2::TangentType ManifoldSO2::boxminus(const ManifoldSO2& to) const {
-  Scalar s = std::sin(to.data() - data());
-  Scalar c = std::cos(to.data() - data());
-  return TangentType(std::atan2(s, c));
-}
-
 template <int dim>
 Euclidean_<dim> Euclidean_<dim>::boxplus(const TangentType& dsp) const {
   return Euclidean_(this->data_ + dsp);
@@ -260,7 +231,6 @@ std::ostream& operator<<(std::ostream& os,
   os << m.template get<0>();
   os << "\n";
 
-  // recursive call
   os << m.rest();
 
   return os;

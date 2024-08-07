@@ -1,6 +1,7 @@
+#pragma once
+
 // State transition models
 
-#include <fodom/common.h>
 #include <fodom/manifold.h>
 
 namespace fodom {
