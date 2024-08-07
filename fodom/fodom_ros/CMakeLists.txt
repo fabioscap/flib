@@ -14,13 +14,14 @@ find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 find_package(fodom REQUIRED)
 
 
 
 add_library(fodom_ros_components SHARED 
-  src/viz_logger.cpp
+  src/fodom_ros.cpp
 )
 ament_target_dependencies(fodom_ros_components 
   rclcpp 
@@ -28,6 +29,7 @@ ament_target_dependencies(fodom_ros_components
   std_msgs
   tf2_ros
   geometry_msgs
+  sensor_msgs
 )
 target_link_libraries(fodom_ros_components fodom)
 
@@ -37,8 +39,8 @@ target_include_directories(fodom_ros_components PUBLIC
 
 rclcpp_components_register_node(
   fodom_ros_components
-  PLUGIN "fodom_ros::VizLogger"
-  EXECUTABLE viz_logger_node
+  PLUGIN "fodom_ros::FodomROS"
+  EXECUTABLE fodom_ros_node
 )
 
 # install rules

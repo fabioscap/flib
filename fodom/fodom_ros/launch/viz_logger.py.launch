@@ -26,10 +26,10 @@ def generate_launch_description():
         arguments=['-d', LaunchConfiguration('rviz_config')]
     )
 
-    viz_logger_node = Node(
+    fodom_ros_node = Node(
         package='fodom_ros',
-        executable='viz_logger_node',
-        name='viz_logger_node',
+        executable='fodom_ros_node',
+        name='fodom_ros_node',
         output='screen',
         parameters=[{
             'frequency': 10.0
@@ -38,7 +38,7 @@ def generate_launch_description():
 
     # Add actions to the LaunchDescription
     ld.add_action(rviz_config)
-    ld.add_action(viz_logger_node)
+    ld.add_action(fodom_ros_node)
     ld.add_action(rviz_node)
 
     return ld
