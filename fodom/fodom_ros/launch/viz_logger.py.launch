@@ -1,0 +1,44 @@
+import os
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, LogInfo
+from launch.substitutions import LaunchConfiguration
+from launch_ros.substitutions import FindPackageShare
+from launch_ros.actions import Node
+from launch_ros.descriptions import ParameterValue
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    package_dir = FindPackageShare(package='fodom_ros').find('fodom_ros')    
+    rviz_config_file = os.path.join(package_dir, "config", "viz_logger.rviz")
+    rviz_config = DeclareLaunchArgument(
+        'rviz_config',
+        default_value=rviz_config_file,
+        description='Path to the RViz configuration file'
+    )
+    
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', LaunchConfiguration('rviz_config')]
+    )
+
+    viz_logger_node = Node(
+        package='fodom_ros',
+        executable='viz_logger_node',
+        name='viz_logger_node',
+        output='screen',
+        parameters=[{
+            'frequency': 10.0
+        }]
+    )
+
+    # Add actions to the LaunchDescription
+    ld.add_action(rviz_config)
+    ld.add_action(viz_logger_node)
+    ld.add_action(rviz_node)
+
+    return ld
