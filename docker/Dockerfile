@@ -4,7 +4,7 @@ FROM ros:jazzy
 
 # install packages
 RUN apt update && \
-    apt-get install git libxinerama-dev libxi-dev libxcursor-dev tmux -y
+    apt-get install git libxinerama-dev libxi-dev libxcursor-dev tmux micro -y
 
 # set up workspace
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
