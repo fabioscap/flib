@@ -5,33 +5,28 @@
 
 namespace fodom {
 
-struct IMUInput {
-  using StateType = ManifoldComp_<ManifoldSO3, Euclidean_<3>, Euclidean_<3>>;
-  using InputType = Vector_<Scalar, 6>;  // angular velocity + acceleration
+namespace IMUOutput {
+using StateType =
+    ManifoldComp_<ManifoldSO3,    // Orientation
+                  Euclidean_<3>,  // Position
+                  Euclidean_<3>,  // Velocity
+                  Euclidean_<3>,  // Bias Gyro
+                  Euclidean_<3>,  // Bias Acc
+                  Euclidean_<3>,  // Gravity Vector global frame (Should be S2?)
+                  Euclidean_<3>,  // Acceleration
+                  Euclidean_<3>   // Angular Velocity
+                  >;
+using InputType = Vector_<Scalar, 12>;
 
-  // Xdot = vels(X,u)
-  static inline StateType::TangentType vels(const StateType& X,
-                                            const InputType& u) {
-    StateType::TangentType v;
+// u: random walk bias noise (gyro, acc)
+//    gaussian noise on angular acceleration and jerk
+StateType::TangentType vels(const StateType& X, const InputType& u);
 
-    v.head<3>() = u.head<3>();
-    v.segment<3>(3) = X.get<2>().data();
-    v.tail<3>() = u.tail<3>();
+StateType fwd(const StateType& X, const InputType& u, Scalar dt);
 
-    return v;
-  }
-};
+// set initial conditions??
+void setGrav(StateType& X, const Vector3_<Scalar>& g);
 
-// Discrete state transition
-template <typename ModelType_>
-typename ModelType_::StateType fwd(const typename ModelType_::StateType& X,
-                                   const typename ModelType_::InputType& u,
-                                   Scalar dt) {
-  return X.boxplus(ModelType_::vels(X, u) * dt);
-}
-
-template IMUInput::StateType fwd<IMUInput>(const IMUInput::StateType& X,
-                                           const IMUInput::InputType& u,
-                                           Scalar dt);
+}  // namespace IMUOutput
 
 }  // namespace fodom
