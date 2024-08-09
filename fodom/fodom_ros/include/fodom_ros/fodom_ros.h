@@ -1,4 +1,4 @@
-#include "fodom/model.h"
+#include "fodom/odom.h"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
@@ -13,10 +13,11 @@ class FodomROS : public rclcpp::Node {
 
  protected:
   void timer_callback();
+  void imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg);
   rclcpp::TimerBase::SharedPtr timer_;
 
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-  fodom::IMUOutput::StateType X;
+  fodom::Odom X;
 
   double dt_ = 1.23;
 

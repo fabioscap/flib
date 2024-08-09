@@ -22,6 +22,7 @@ find_package(fodom REQUIRED)
 
 add_library(fodom_ros_components SHARED 
   src/fodom_ros.cpp
+  src/utils.cpp
 )
 ament_target_dependencies(fodom_ros_components 
   rclcpp 
