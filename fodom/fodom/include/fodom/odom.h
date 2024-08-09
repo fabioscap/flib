@@ -6,8 +6,7 @@ namespace fodom {
 
 class Odom {
  public:
-  template <typename Scalar_>
-  void process_IMU(const IMUMeasurement<Scalar_>& meas);
+  void process_IMU(const IMUMeasurement<double>& meas);
 
  protected:
   IMUOutput::StateType X_;
