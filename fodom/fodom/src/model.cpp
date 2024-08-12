@@ -20,6 +20,8 @@ StateType fwd(const StateType& X, const InputType& u, Scalar dt) {
   return X.boxplus(dt * vels(X, u));
 }
 
+MatrixN_<Scalar, StateType::dim> fwdJ(const StateType& X, Scalar dt) {}
+
 // set initial conditions??
 void setGrav(StateType& X, const Vector3_<Scalar>& g) { X.get<5>().data() = g; }
 }  // namespace IMUOutput

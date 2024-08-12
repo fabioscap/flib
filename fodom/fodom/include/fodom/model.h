@@ -25,6 +25,8 @@ StateType::TangentType vels(const StateType& X, const InputType& u);
 
 StateType fwd(const StateType& X, const InputType& u, Scalar dt);
 
+MatrixN_<Scalar, StateType::dim> fwdJ(const StateType& X, Scalar dt);
+
 // set initial conditions??
 void setGrav(StateType& X, const Vector3_<Scalar>& g);
 
