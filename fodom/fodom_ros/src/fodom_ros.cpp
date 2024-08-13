@@ -26,25 +26,61 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
 
   tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+  pose_publisher_ =
+      this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+          "pose_with_covariance", 10);
+
   imu_sub_ = this->create_subscription<sensor_msgs::msg::Imu>(
       "imu", 10, std::bind(&FodomROS::imu_callback, this, _1));
+
+  setGrav(robot_.X_, {0, 0, -0.02});
+  robot_.X_.get<6>().data() << 0, 0, 0.1;
 }
 
 void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;
-  t.header.stamp = rclcpp::Node::now();
+  geometry_msgs::msg::PoseWithCovarianceStamped msg;
+  auto now = rclcpp::Node::now();
+  auto p = robot_.X_.get<1>().data();
+  auto R = robot_.X_.get<0>().data();
+  Eigen::Quaterniond quaternion(R);
+
+  t.header.stamp = now;
   t.header.frame_id = "world";
   t.child_frame_id = "robot";
 
-  // auto p = X.get<1>().data();
-  // t.transform.translation.x = p.x();
-  // t.transform.translation.y = p.y();
-  // t.transform.translation.z = p.z();
+  t.transform.translation.x = p.x();
+  t.transform.translation.y = p.y();
+  t.transform.translation.z = p.z();
+  t.transform.rotation.x = quaternion.x();
+  t.transform.rotation.y = quaternion.y();
+  t.transform.rotation.z = quaternion.z();
+  t.transform.rotation.w = quaternion.w();
   tf_broadcaster_->sendTransform(t);
 
-  // X = fwd(X, InputType::Zero(), dt_);
+  msg.header.stamp = now;
+  msg.header.frame_id = "world";
 
-  RCLCPP_INFO(this->get_logger(), "%f, %f, %f, %f", 0, 0, 0, t.header.stamp);
+  msg.pose.pose.position.x = p.x();
+  msg.pose.pose.position.y = p.y();
+  msg.pose.pose.position.z = p.z();
+
+  msg.pose.pose.orientation.x = quaternion.x();
+  msg.pose.pose.orientation.y = quaternion.y();
+  msg.pose.pose.orientation.z = quaternion.z();
+  msg.pose.pose.orientation.w = quaternion.w();
+
+  Eigen::Matrix<double, 6, 6> tmp = robot_.S_.block<6, 6>(0, 0);
+  tmp.block<3, 3>(0, 0).swap(tmp.block<3, 3>(3, 3));
+  tmp.block<3, 3>(3, 0).swap(tmp.block<3, 3>(0, 3));
+  for (size_t i = 0; i < 6; ++i)
+    for (size_t j = 0; j < 6; ++j) msg.pose.covariance[i * 6 + j] = tmp(i, j);
+
+  pose_publisher_->publish(msg);
+
+  robot_.propagate(InputType::Zero(), dt_);
+
+  // RCLCPP_INFO(this->get_logger(), "%f, %f, %f, %f", 0, 0, 0, t.header.stamp);
 }
 
 void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
@@ -58,7 +94,7 @@ void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
       msg->linear_acceleration.z;
   m.ang_vel << msg->angular_velocity.x, msg->angular_velocity.y,
       msg->angular_velocity.z;
-  X.process_IMU(m);
+  robot_.process_IMU(m);
   RCLCPP_INFO(this->get_logger(), "%lf", time_double);
 }
 
