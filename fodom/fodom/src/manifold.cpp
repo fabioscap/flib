@@ -11,7 +11,7 @@ ManifoldSO3 ManifoldSO3::boxplus(const TangentType& dsp) const {
   return ManifoldSO3(R);
 }
 ManifoldSO3::TangentType ManifoldSO3::boxminus(const ManifoldSO3& to) const {
-  DataType R = data_.transpose() * to.data();
+  DataType R = to.data().transpose() * data_.transpose();
   return logMapSO3(R.eval());
 }
 
@@ -25,8 +25,8 @@ ManifoldSO2 ManifoldSO2::boxplus(const TangentType& dsp) const {
 }
 
 ManifoldSO2::TangentType ManifoldSO2::boxminus(const ManifoldSO2& to) const {
-  Scalar s = std::sin(to.data() - data());
-  Scalar c = std::cos(to.data() - data());
+  Scalar s = std::sin(data() - to.data());
+  Scalar c = std::cos(data() - to.data());
   return TangentType(std::atan2(s, c));
 }
 }

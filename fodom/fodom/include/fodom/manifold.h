@@ -149,7 +149,7 @@ Euclidean_<dim> Euclidean_<dim>::boxplus(const TangentType& dsp) const {
 template <int dim>
 typename Euclidean_<dim>::TangentType Euclidean_<dim>::boxminus(
     const Euclidean_<dim>& to) const {
-  return to.data() - this->data_;
+  return this->data_ - to.data();
 }
 
 template <typename Manifold>
