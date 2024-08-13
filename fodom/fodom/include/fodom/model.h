@@ -14,8 +14,8 @@ using StateType =
                   Euclidean_<3>,  // Bias Gyro
                   Euclidean_<3>,  // Bias Acc
                   Euclidean_<3>,  // Gravity Vector global frame (Should be S2?)
-                  Euclidean_<3>,  // Acceleration
-                  Euclidean_<3>   // Angular Velocity
+                  Euclidean_<3>,  // Angular Velocity
+                  Euclidean_<3>   // Acceleration
                   >;
 using InputType = Vector_<Scalar, 12>;
 

@@ -6,7 +6,7 @@ namespace IMUOutput {
 StateType::TangentType vels(const StateType& X, const InputType& u) {
   StateType::TangentType out;
 
-  out.head<3>() = X.get<7>().data();
+  out.head<3>() = X.get<6>().data();
   out.segment<3>(3) = X.get<2>().data();
   out.segment<3>(6) = X.get<0>().data() * X.get<6>().data() + X.get<5>().data();
   out.segment<6>(9) = u.head<6>();

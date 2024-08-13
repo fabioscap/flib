@@ -14,14 +14,14 @@ class Odom {
 
   void propagate(const InputType& u, const Scalar dt);
 
- protected:
+  // protected:
   StateType X_;
-  CovType S_ = CovType::Zero();
+  CovType S_ = 0 * CovType::Identity();
 
-  Scalar b_gyro_cov_;  // (rad/s)^2
-  Scalar b_accl_cov_;  // (m/s^2)^2
+  Scalar b_gyro_cov_ = 0;  // (rad/s)^2
+  Scalar b_accl_cov_ = 0;  // (m/s^2)^2
 
-  Scalar n_gyro_cov_;  // (rad/s)^2
-  Scalar n_accl_cov_;  // (m/s^2)^2
+  Scalar n_gyro_cov_ = 0;  // (rad/s^2)^2
+  Scalar n_accl_cov_ = 0;  // (m/s^3)^2
 };
 }  // namespace fodom
