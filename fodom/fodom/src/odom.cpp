@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "fodom/synthetic/synthetic.h"
-#include "fodom/unscented.h"
+#include "fodom/unscented/unscented.h"
 namespace fodom {
 
 void Odom::propagate(const InputType& u, const Scalar dt) {
