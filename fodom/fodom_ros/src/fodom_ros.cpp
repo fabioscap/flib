@@ -31,12 +31,12 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
           "pose_with_covariance", 10);
 
   imu_sub_ = this->create_subscription<sensor_msgs::msg::Imu>(
-      "imu", 10, std::bind(&FodomROS::imu_callback, this, _1));
+      "imu", 1000, std::bind(&FodomROS::imu_callback, this, _1));
 
-  setGrav(robot_.X_, {0, 0, -0.02});
-  robot_.X_.get<6>().data() << 0, 0, 0.1;
+  robot_.log_function_ = [this](const std::string& message) {
+    RCLCPP_INFO(this->get_logger(), "%s", message.c_str());
+  };
 }
-
 void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;
   geometry_msgs::msg::PoseWithCovarianceStamped msg;
@@ -78,9 +78,8 @@ void FodomROS::timer_callback() {
 
   pose_publisher_->publish(msg);
 
-  robot_.propagate(InputType::Zero(), dt_);
-
-  // RCLCPP_INFO(this->get_logger(), "%f, %f, %f, %f", 0, 0, 0, t.header.stamp);
+  // RCLCPP_INFO(this->get_logger(), "%f, %f, %f, %f", 0, 0, 0,
+  // t.header.stamp);
 }
 
 void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
