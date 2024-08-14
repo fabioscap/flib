@@ -6,9 +6,12 @@
 
 // generate an SE(3) trajectory
 // and produce imu measurements
-
-namespace fodom {
 namespace synthetic {
+
+using fodom::IMUMeasurement;
+using fodom::Isometry3_;
+using fodom::Scalar;
+using fodom::Vector3_;
 
 // base class for synthetic trajectory
 class Trajectory {
@@ -150,4 +153,3 @@ class FakeImu {
   Vector3_<Scalar> bg_ = Vector3_<Scalar>::Zero();
 };
 }  // namespace synthetic
-}  // namespace fodom

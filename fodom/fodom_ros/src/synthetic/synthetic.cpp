@@ -1,11 +1,12 @@
-#include "fodom/synthetic/synthetic.h"
+#include "fodom_ros/synthetic/synthetic.h"
 
 #include <cmath>
 #include <fstream>
 #include <memory>
 
-namespace fodom {
 namespace synthetic {
+
+using namespace fodom;
 
 const Scalar a = 100.0;  // amplitude parameter
 void SE3EightTrajectory::sampleTrajectory(Scalar t, Vector3_<Scalar>& pos,
@@ -250,4 +251,3 @@ void MeasurementTrajectory::sampleMeasurement(Scalar t, Vector3_<Scalar>& acc,
 }
 
 }  // namespace synthetic
-}  // namespace fodom

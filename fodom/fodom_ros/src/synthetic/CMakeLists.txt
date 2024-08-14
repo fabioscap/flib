@@ -4,4 +4,4 @@ target_include_directories(synthetic
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(synthetic PUBLIC Eigen3::Eigen)
+target_link_libraries(synthetic PUBLIC fodom Eigen3::Eigen)

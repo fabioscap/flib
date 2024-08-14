@@ -18,7 +18,7 @@ find_package(sensor_msgs REQUIRED)
 
 find_package(fodom REQUIRED)
 
-
+add_subdirectory(src/synthetic)
 
 add_library(fodom_ros_components SHARED 
   src/fodom_ros.cpp
@@ -32,7 +32,7 @@ ament_target_dependencies(fodom_ros_components
   geometry_msgs
   sensor_msgs
 )
-target_link_libraries(fodom_ros_components fodom)
+target_link_libraries(fodom_ros_components fodom synthetic)
 
 target_include_directories(fodom_ros_components PUBLIC
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
@@ -46,7 +46,7 @@ rclcpp_components_register_node(
 
 # install rules
 install(
-  TARGETS fodom_ros_components
+  TARGETS fodom_ros_components synthetic
   EXPORT export_${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
