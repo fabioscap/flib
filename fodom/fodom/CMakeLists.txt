@@ -9,11 +9,13 @@ endif()
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 
+add_subdirectory(src/synthetic)
+
 add_library(fodom SHARED 
             src/manifold.cpp
             src/model.cpp
             src/odom.cpp)
-target_link_libraries(fodom PUBLIC Eigen3::Eigen)
+target_link_libraries(fodom PUBLIC Eigen3::Eigen synthetic)
 
 target_include_directories(fodom
     PUBLIC
@@ -22,7 +24,7 @@ target_include_directories(fodom
 )
 
 # Install the library and headers
-install(TARGETS fodom
+install(TARGETS fodom synthetic
         EXPORT fodomTargets
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib

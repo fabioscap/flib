@@ -25,6 +25,9 @@ template <typename Scalar_>
 using Matrix3_ = Eigen::Matrix<Scalar_, 3, 3>;
 
 template <typename Scalar_>
+using Isometry3_ = Eigen::Transform<Scalar_, 3, Eigen::Isometry>;
+
+template <typename Scalar_>
 inline Matrix3_<Scalar_> skew(const Vector3_<Scalar_> &v_) {
   Matrix3_<Scalar_> S;
   S << Scalar_(0.), -v_[2], v_[1], v_[2], Scalar_(0.), -v_[0], -v_[1], v_[0],
