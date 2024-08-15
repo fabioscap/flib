@@ -6,6 +6,11 @@
 #include "fodom/unscented.h"
 namespace fodom {
 
+Odom::Odom()
+    : log_function_([](const std::string& s) { std::cout << s << std::endl; }) {
+}
+Odom::Odom(void (*f)(const std::string&)) : log_function_(f) {};
+
 void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 

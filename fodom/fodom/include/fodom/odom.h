@@ -3,6 +3,8 @@
 #include <functional>
 
 #include "fodom/model.h"
+#include "fodom/utils.h"
+
 namespace fodom {
 
 class Odom {
@@ -11,8 +13,8 @@ class Odom {
   using InputType = IMUOutput::InputType;
   using CovType = MatrixN_<Scalar, StateType::dim>;
 
-  Odom() : log_function_([](const std::string&) {}) {};
-  Odom(void (*f)(const std::string&)) : log_function_(f) {};
+  Odom();
+  Odom(void (*f)(const std::string&));
 
   void process_IMU(const IMUMeasurement<Scalar>& meas);
 

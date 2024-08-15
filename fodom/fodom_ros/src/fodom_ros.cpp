@@ -4,6 +4,7 @@
 #include <functional>
 #include <rclcpp_components/register_node_macro.hpp>
 
+#include "fodom/utils.h"
 #include "fodom_ros/utils.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -36,6 +37,12 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
   robot_.log_function_ = [this](const std::string& message) {
     RCLCPP_INFO(this->get_logger(), "%s", message.c_str());
   };
+  fodom::SimpleStopWatch<double> sw(
+      [this]() { return time_to_double(rclcpp::Node::now()); });
+
+  sw.tic();
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  RCLCPP_INFO(this->get_logger(), "%lf!!!!!!!!!!!!!", sw.toc());
 }
 void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;
