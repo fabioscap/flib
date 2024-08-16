@@ -56,7 +56,7 @@ install(
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
 install( DIRECTORY launch/ DESTINATION share/${PROJECT_NAME}/launch      
-		 FILES_MATCHING PATTERN "*.py.launch" 
+		 FILES_MATCHING PATTERN "*.launch.py" 
 )
 
 install( DIRECTORY config/ DESTINATION share/${PROJECT_NAME}/config     
