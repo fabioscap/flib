@@ -19,6 +19,6 @@ using fodom::time_to_sec;
 
 // ros time requires a node handle, you pass it to the constructor as such:
 // ROSStopWatch([node_ptr]() { return node_ptr->now(); });
-using ROSStopWatch = fodom::SimpleStopWatch_<rclcpp::Time, rclcpp::Duration>;
+using ROSStopWatch = fodom::StopWatch_<rclcpp::Time>;
 
 }  // namespace fodom_ros

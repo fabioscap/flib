@@ -1,14 +1,17 @@
 import os
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, LogInfo
+from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import Node
-from launch_ros.descriptions import ParameterValue
+from launch_ros.actions import Node, SetParameter
+from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     ld = LaunchDescription()
+    print(":LAUCBNAS")
+    # use_sim_time = LaunchConfiguration('use_sim_time', default=True)
+    use_sim_time = SetParameter(name='use_sim_time', value=True)
 
     package_dir = FindPackageShare(package='fodom_ros').find('fodom_ros')    
     rviz_config_file = os.path.join(package_dir, "config", "viz_logger.rviz")
@@ -37,6 +40,7 @@ def generate_launch_description():
     )
 
     # Add actions to the LaunchDescription
+    ld.add_action(use_sim_time)
     ld.add_action(rviz_config)
     ld.add_action(fodom_ros_node)
     ld.add_action(rviz_node)

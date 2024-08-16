@@ -4,18 +4,18 @@
 #include <sstream>
 
 #include "fodom/unscented.h"
+
 namespace fodom {
 
-Odom::Odom()
-    : log_function_([](const std::string& s) { std::cout << s << std::endl; }) {
-}
-Odom::Odom(void (*f)(const std::string&)) : log_function_(f) {};
+Odom::Odom(void (*f)(const std::string&),
+           const std::shared_ptr<StopWatchBase>& sw)
+    : log_function_(f), sw_(sw) {};
 
 void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 
-  StateType X_copy(X_);
-  CovType S_Copy(S_);
+  sw_->tic();
+
   // UT
   UnscentedTransform ut;
   ut.weight_scheme_ = WeightScheme::HB;
@@ -30,13 +30,13 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
   // add process covariance
 
   stamp_ += dt;
+
+  log_function_("dt:" + std::to_string(dt) +
+                " time:" + std::to_string(sw_->toc()));
 }
 
 void Odom::process_IMU(const IMUMeasurement<double>& meas) {
   // propagate until meas.stamp
-  log_function_("ehpporcodio!");
-  log_function_(std::to_string(stamp_));
-  log_function_(std::to_string(meas.stamp));
   if (stamp_) {
     if (stamp_ > meas.stamp + dt_min_) {
       log_function_("agg sburrat");
@@ -65,8 +65,8 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
   S_ *= (CovType::Identity() - K * J);
   X_ = X_.boxplus(K * res);
 
-  std::ostringstream s;
-  s << K * res;
-  log_function_(s.str());
+  /*   std::ostringstream s;
+    s << K * res;
+    log_function_(s.str()); */
 }
 }  // namespace fodom

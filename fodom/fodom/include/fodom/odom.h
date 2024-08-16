@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 
 #include "fodom/model.h"
 #include "fodom/utils.h"
@@ -13,8 +14,11 @@ class Odom {
   using InputType = IMUOutput::InputType;
   using CovType = MatrixN_<Scalar, StateType::dim>;
 
-  Odom();
-  Odom(void (*f)(const std::string&));
+  Odom(
+      void (*f)(const std::string&) =
+          [](const std::string& s) { std::cout << s << std::endl; },
+      const std::shared_ptr<StopWatchBase>& sw =
+          std::make_shared<ChronoStopWatch>());
 
   void process_IMU(const IMUMeasurement<Scalar>& meas);
 
@@ -22,6 +26,7 @@ class Odom {
 
   // protected:
   std::function<void(const std::string&)> log_function_;
+  std::shared_ptr<StopWatchBase> sw_;
 
   Scalar stamp_ = 0.0;
   Scalar dt_min_ = 1e-3;

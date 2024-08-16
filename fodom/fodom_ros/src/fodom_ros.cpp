@@ -37,14 +37,17 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
   robot_.log_function_ = [this](const std::string& message) {
     RCLCPP_INFO(this->get_logger(), "%s", message.c_str());
   };
+
   ROSStopWatch sw([this]() { return this->now(); });
   fodom::ChronoStopWatch sw2;
+
+  // robot_.sw_ = std::make_shared<ROSStopWatch>(sw);
 
   sw.tic();
   sw2.tic();
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  auto D = time_to_sec(sw.toc());
-  auto E = time_to_sec(sw2.toc());
+  auto D = (sw.toc());
+  auto E = (sw2.toc());
   RCLCPP_INFO(this->get_logger(), "%lf!!!!!!!!!!!!!%lf", D, E);
 }
 void FodomROS::timer_callback() {
@@ -104,7 +107,6 @@ void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
   m.ang_vel << msg->angular_velocity.x, msg->angular_velocity.y,
       msg->angular_velocity.z;
   robot_.process_IMU(m);
-  RCLCPP_INFO(this->get_logger(), "%lf", time_double);
 }
 
 }  // namespace fodom_ros
