@@ -7,9 +7,9 @@ using Scalar = double;
 
 template <typename Scalar_>
 struct IMUMeasurement {
-  Scalar_ stamp;
-  Vector3_<Scalar_> ang_vel;
-  Vector3_<Scalar_> lin_acc;
+  Scalar_ stamp;              // s
+  Vector3_<Scalar_> ang_vel;  // rad/s
+  Vector3_<Scalar_> lin_acc;  // m/s^2
 };
 
 }  // namespace fodom
