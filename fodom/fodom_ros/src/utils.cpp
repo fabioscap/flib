@@ -1,7 +1,18 @@
 #include "fodom_ros/utils.h"
 
-namespace fodom_ros {
-double time_to_double(const builtin_interfaces::msg::Time& time) {
+namespace fodom {
+
+template <>
+double time_to_sec(const builtin_interfaces::msg::Time& time) {
   return time.sec + time.nanosec * 1e-9;  // why ROS2, why
 }
-}  // namespace fodom_ros
+template <>
+double time_to_sec(const rclcpp::Time& time) {
+  return time.seconds();
+}
+template <>
+double time_to_sec(const rclcpp::Duration& duration) {
+  return duration.seconds();
+}
+
+}  // namespace fodom

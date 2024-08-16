@@ -37,12 +37,15 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
   robot_.log_function_ = [this](const std::string& message) {
     RCLCPP_INFO(this->get_logger(), "%s", message.c_str());
   };
-  fodom::SimpleStopWatch<double> sw(
-      [this]() { return time_to_double(rclcpp::Node::now()); });
+  ROSStopWatch sw([this]() { return this->now(); });
+  fodom::ChronoStopWatch sw2;
 
   sw.tic();
+  sw2.tic();
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  RCLCPP_INFO(this->get_logger(), "%lf!!!!!!!!!!!!!", sw.toc());
+  auto D = time_to_sec(sw.toc());
+  auto E = time_to_sec(sw2.toc());
+  RCLCPP_INFO(this->get_logger(), "%lf!!!!!!!!!!!!!%lf", D, E);
 }
 void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;
@@ -92,7 +95,7 @@ void FodomROS::timer_callback() {
 void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
   RCLCPP_INFO(this->get_logger(), "messaggio IMU");
 
-  double time_double = time_to_double(msg->header.stamp);
+  double time_double = time_to_sec(msg->header.stamp);
 
   fodom::IMUMeasurement<double> m;
   m.stamp = time_double;
