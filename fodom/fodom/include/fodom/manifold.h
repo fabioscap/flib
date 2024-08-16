@@ -130,13 +130,13 @@ std::ostream& operator<<(std::ostream&, const ManifoldComp_<Manifold>&);
 template <typename DataType_, int dim_>
 ManifoldBase_<DataType_, dim_> ManifoldBase_<DataType_, dim_>::boxplus(
     const TangentType&) const {
-  throw std::runtime_error("boxplus not defined");
+  static_assert(sizeof(DataType_) == 0, "boxplus not defined");
 }
 
 template <typename DataType_, int dim_>
 typename ManifoldBase_<DataType_, dim_>::TangentType
 ManifoldBase_<DataType_, dim_>::boxminus(const ThisType&) const {
-  throw std::runtime_error("boxminus not defined");
+  static_assert(sizeof(DataType_) == 0, "boxminus not defined");
 }
 
 template <typename Manifold>
