@@ -13,7 +13,6 @@
 using namespace std::chrono_literals;
 
 namespace fodom_ros {
-using namespace fodom::IMUOutput;
 
 FodomROS::FodomROS(const rclcpp::NodeOptions& options)
     : Node("fodom_ros_node", options) {
@@ -54,8 +53,8 @@ void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;
   geometry_msgs::msg::PoseWithCovarianceStamped msg;
   auto now = rclcpp::Node::now();
-  auto p = robot_.X_.get<1>().data();
-  auto R = robot_.X_.get<0>().data();
+  auto p = robot_.X_.get<1>().data;
+  auto R = robot_.X_.get<0>().data;
   Eigen::Quaterniond quaternion(R);
 
   t.header.stamp = now;

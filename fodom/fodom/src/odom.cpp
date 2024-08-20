@@ -14,25 +14,20 @@ Odom::Odom(void (*f)(const std::string&),
 void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 
-  sw_->tic();
-
   // UT
   UnscentedTransform ut;
   ut.weight_scheme_ = WeightScheme::HB;
-  SigmaPoints<StateType> spoints;
+  SigmaPoints<ModelType> spoints;
   ut.toUnscented(X_, S_, spoints);
   for (size_t i = 0; i < spoints.points.size(); ++i) {
     auto& point = spoints.points.at(i);
-    point = IMUOutput::fwd(point, u, dt);
+    point = ModelType::fwd(point, u, dt);
   }
   ut.toMeanCov(spoints, X_, S_);
 
   // add process covariance
 
   stamp_ += dt;
-
-  log_function_("dt:" + std::to_string(dt) +
-                " time:" + std::to_string(sw_->toc()));
 }
 
 void Odom::process_IMU(const IMUMeasurement<double>& meas) {
@@ -48,14 +43,14 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
   }
   stamp_ = meas.stamp;
 
-  auto acc_c = meas.lin_acc - X_.get<4>().data();
-  auto ang_c = meas.ang_vel - X_.get<3>().data();
+  auto acc_c = meas.lin_acc - X_.get<4>().data;
+  auto ang_c = meas.ang_vel - X_.get<3>().data;
 
   Vector_<Scalar, 6> res;
-  res << X_.get<6>().data() - ang_c, X_.get<7>().data() - acc_c;
+  res << X_.get<6>().data - ang_c, X_.get<7>().data - acc_c;
 
-  MatrixNM_<Scalar, 6, IMUOutput::StateType::dim> J =
-      MatrixNM_<Scalar, 6, IMUOutput::StateType::dim>::Zero();
+  MatrixNM_<Scalar, 6, IMUOutput::dim> J =
+      MatrixNM_<Scalar, 6, IMUOutput::dim>::Zero();
   J.block<6, 6>(0, 9) = MatrixN_<Scalar, 6>::Identity();
   J.block<6, 6>(0, 18) = MatrixN_<Scalar, 6>::Identity();
   auto K = S_ * J.transpose() *

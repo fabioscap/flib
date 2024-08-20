@@ -30,9 +30,9 @@ struct StopWatch_ : public StopWatchBase {
   void tic() override { tics.push_back(now_f()); }
   std::function<TimePoint_()> now_f;
   double toc() override {
-    /*     if (tics.empty()) {
-          throw std::runtime_error("");
-        } */
+    /* if (tics.empty()) {
+      throw std::runtime_error("");
+    } */
     TimePoint_ start_time = tics.back();
     tics.pop_back();
     TimePoint_ end_time = now_f();
@@ -43,7 +43,7 @@ struct StopWatch_ : public StopWatchBase {
 };
 
 struct ChronoStopWatch
-    : public StopWatch_<std::chrono::high_resolution_clock::time_point> {
-  ChronoStopWatch() : StopWatch_(std::chrono::high_resolution_clock::now) {}
+    : public StopWatch_<std::chrono::steady_clock::time_point> {
+  ChronoStopWatch() : StopWatch_(std::chrono::steady_clock::now) {}
 };
 }  // namespace fodom

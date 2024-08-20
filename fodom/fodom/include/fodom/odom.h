@@ -10,9 +10,9 @@ namespace fodom {
 
 class Odom {
  public:
-  using StateType = IMUOutput::StateType;
-  using InputType = IMUOutput::InputType;
-  using CovType = MatrixN_<Scalar, StateType::dim>;
+  using ModelType = IMUOutput;
+  using InputType = ModelType::InputType;
+  using CovType = MatrixN_<Scalar, ModelType::dim>;
 
   Odom(
       void (*f)(const std::string&) =
@@ -32,13 +32,13 @@ class Odom {
   Scalar dt_min_ = 1e-3;
   Scalar dt_max_ = 1e-3;
 
-  StateType X_;
+  ModelType X_;
   CovType S_ = 0 * CovType::Identity();
 
-  Scalar b_gyro_cov_ = 0;  // (rad/s)^2
-  Scalar b_accl_cov_ = 0;  // (m/s^2)^2
+  Scalar b_gyro_cov_ = 1e-4;  // (rad/s)^2
+  Scalar b_accl_cov_ = 1e-4;  // (m/s^2)^2
 
-  Scalar n_gyro_cov_ = 0;  // (rad/s^2)^2
-  Scalar n_accl_cov_ = 0;  // (m/s^3)^2
+  Scalar n_gyro_cov_ = 1e-4;  // (rad/s^2)^2
+  Scalar n_accl_cov_ = 1e-4;  // (m/s^3)^2
 };
 }  // namespace fodom

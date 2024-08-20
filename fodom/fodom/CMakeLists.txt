@@ -35,3 +35,5 @@ install(EXPORT fodomTargets
         DESTINATION lib/cmake/fodom)
 
 install(DIRECTORY include/ DESTINATION include)
+
+add_subdirectory(app)

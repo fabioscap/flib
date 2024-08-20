@@ -10,30 +10,22 @@ template <int dim>
 using TangentType_ = Vector_<Scalar, dim>;
 
 template <typename DataType_, int dim_>
-class ManifoldBase_ {
- public:
+struct ManifoldBase_ {
   static constexpr int dim = dim_;
   using ThisType = ManifoldBase_<DataType_, dim_>;
   using DataType = DataType_;
   using TangentType = TangentType_<dim>;
   ManifoldBase_() = default;
-  ManifoldBase_(const DataType& data) : data_(data) {}
-
-  inline const DataType& data() const { return data_; }
-  inline DataType& data() { return data_; }
+  ManifoldBase_(const DataType& d) : data(d) {}
 
   // redefine these two methods
   ThisType boxplus(const TangentType&) const;
-
-  // convention for boxminus: compute chart around *this
   TangentType boxminus(const ThisType&) const;
 
- protected:
-  DataType data_;
+  DataType data;
 };
 
-class ManifoldSO3 : public ManifoldBase_<MatrixN_<Scalar, 3>, 3> {
- public:
+struct ManifoldSO3 : public ManifoldBase_<MatrixN_<Scalar, 3>, 3> {
   using BaseType = ManifoldBase_<MatrixN_<Scalar, 3>, 3>;
   ManifoldSO3();
   ManifoldSO3(const DataType& data);
@@ -41,8 +33,7 @@ class ManifoldSO3 : public ManifoldBase_<MatrixN_<Scalar, 3>, 3> {
   TangentType boxminus(const ManifoldSO3& to) const;
 };
 
-class ManifoldSO2 : public ManifoldBase_<Scalar, 1> {
- public:
+struct ManifoldSO2 : public ManifoldBase_<Scalar, 1> {
   using BaseType = ManifoldBase_<Scalar, 1>;
   ManifoldSO2();
   ManifoldSO2(const DataType& data);
@@ -52,8 +43,7 @@ class ManifoldSO2 : public ManifoldBase_<Scalar, 1> {
 
 // specialization for Euclidean domains
 template <int dim>
-class Euclidean_ : public ManifoldBase_<TangentType_<dim>, dim> {
- public:
+struct Euclidean_ : public ManifoldBase_<TangentType_<dim>, dim> {
   using BaseType = ManifoldBase_<TangentType_<dim>, dim>;
   using DataType = typename BaseType::DataType;
   using TangentType = typename BaseType::TangentType;
@@ -65,11 +55,10 @@ class Euclidean_ : public ManifoldBase_<TangentType_<dim>, dim> {
 };
 
 template <typename... Manifolds>
-class ManifoldComp_;
+struct ManifoldComp_;
 
 template <typename Manifold>
-class ManifoldComp_<Manifold> {
- public:
+struct ManifoldComp_<Manifold> {
   static constexpr int dim = Manifold::dim;
   using ThisType = ManifoldComp_<Manifold>;
   using TangentType = typename Manifold::TangentType;
@@ -89,13 +78,11 @@ class ManifoldComp_<Manifold> {
   template <size_t N>
   Manifold& get();
 
- protected:
   Manifold manifold_;
 };
 
 template <typename Manifold, typename... Rest>
-class ManifoldComp_<Manifold, Rest...> {
- public:
+struct ManifoldComp_<Manifold, Rest...> {
   static constexpr int dim = Manifold::dim + ManifoldComp_<Rest...>::dim;
   using ThisType = ManifoldComp_<Manifold, Rest...>;
   using TangentType = TangentType_<dim>;
@@ -113,7 +100,6 @@ class ManifoldComp_<Manifold, Rest...> {
 
   inline const ManifoldComp_<Rest...>& rest() const { return rest_; }
 
- protected:
   Manifold manifold_;
   ManifoldComp_<Rest...> rest_;
 };
@@ -144,12 +130,12 @@ ManifoldComp_<Manifold>::ManifoldComp_(const Manifold& m) : manifold_(m) {}
 
 template <int dim>
 Euclidean_<dim> Euclidean_<dim>::boxplus(const TangentType& dsp) const {
-  return Euclidean_(this->data_ + dsp);
+  return Euclidean_(this->data + dsp);
 }
 template <int dim>
 typename Euclidean_<dim>::TangentType Euclidean_<dim>::boxminus(
     const Euclidean_<dim>& to) const {
-  return this->data_ - to.data();
+  return this->data - to.data;
 }
 
 template <typename Manifold>
@@ -221,7 +207,7 @@ const auto& ManifoldComp_<Manifold, Rest...>::get() const {
 template <typename DataType, int dim>
 std::ostream& operator<<(std::ostream& os,
                          const ManifoldBase_<DataType, dim>& m) {
-  os << m.data();
+  os << m.data;
   return os;
 }
 
