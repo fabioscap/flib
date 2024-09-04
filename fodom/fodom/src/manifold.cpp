@@ -15,18 +15,28 @@ ManifoldSO3::TangentType ManifoldSO3::boxminus(const ManifoldSO3& to) const {
   return logMapSO3(R.eval());
 }
 
-ManifoldSO2::ManifoldSO2() : BaseType(0.0) {}
-ManifoldSO2::ManifoldSO2(const DataType& data) : BaseType(data) {}
+ManifoldSO3Q::ManifoldSO3Q() : BaseType(DataType::Identity()) {}
+ManifoldSO3Q::ManifoldSO3Q(const DataType& data) : BaseType(data) {}
 
-ManifoldSO2 ManifoldSO2::boxplus(const TangentType& dsp) const {
-  Scalar s = std::sin(data + dsp(0));
-  Scalar c = std::cos(data + dsp(0));
-  return ManifoldSO2(std::atan2(s, c));
+ManifoldSO3Q ManifoldSO3Q::boxplus(const TangentType& dsp) const {
+  Scalar n = dsp.squaredNorm();
+  if (n > Scalar(1.)) {
+    return ManifoldSO3Q(Matrix3_<Scalar>::Identity());
+  }
+  Scalar w(sqrt(Scalar(1.) - n));
+  Eigen::Quaternion<Scalar> full_q(w, dsp[0], dsp[1], dsp[2]);
+  return ManifoldSO3Q(data * full_q.toRotationMatrix());
+}
+ManifoldSO3Q::TangentType ManifoldSO3Q::boxminus(const ManifoldSO3Q& to) const {
+  Vector3_<Scalar> nq;
+  Eigen::Quaternion<Scalar> q = r2q<Scalar>(to.data.transpose() * data);
+  q.normalize();
+  if (q.w() >= Scalar(0.)) {
+    nq << q.x(), q.y(), q.z();
+  } else {
+    nq << -q.x(), -q.y(), -q.z();
+  }
+  return nq;
 }
 
-ManifoldSO2::TangentType ManifoldSO2::boxminus(const ManifoldSO2& to) const {
-  Scalar s = std::sin(data - to.data);
-  Scalar c = std::cos(data - to.data);
-  return TangentType(std::atan2(s, c));
-}
-}
+}  // namespace fodom
