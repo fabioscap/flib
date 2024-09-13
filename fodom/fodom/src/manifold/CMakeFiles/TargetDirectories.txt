@@ -1,0 +1,3 @@
+/home/fabioscap/Desktop/fodom/fodom/fodom/src/manifold/CMakeFiles/test.dir
+/home/fabioscap/Desktop/fodom/fodom/fodom/src/manifold/CMakeFiles/edit_cache.dir
+/home/fabioscap/Desktop/fodom/fodom/fodom/src/manifold/CMakeFiles/rebuild_cache.dir
