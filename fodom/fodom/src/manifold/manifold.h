@@ -4,7 +4,7 @@
 
 namespace manifold {
 
-constexpr size_t log = false;
+constexpr size_t log = true;
 
 // print a tuple. move it elsewhere
 template <typename... Types>
@@ -13,16 +13,32 @@ std::ostream& operator<<(std::ostream& os, const std::tuple<Types...>& t) {
   return os;
 }
 
-template <typename Derived, typename DataType_>
+template <typename Derived, typename DataType_, size_t dim_>
 struct ManifoldBase_ {
   using DataType = DataType_;
   DataType data;
+
+  static constexpr size_t dim = dim_;
+  using TangentType = Eigen::Vector<double, dim>;
 
   template <typename T>
   ManifoldBase_(T&& d) : data(std::forward<T>(d)) {
     if constexpr (log) std::cout << Derived::name << "MBase data ctor\n";
   }
 
+  template <typename D>
+  Derived operator+(const Eigen::MatrixBase<D>& dsp) const {
+    Derived out(*static_cast<const Derived*>(this));
+    out.boxplus(dsp);
+    return out;  // NRVO
+  }
+
+  template <typename D>
+  void boxplus(const Eigen::MatrixBase<D>& dsp) {
+    return static_cast<Derived*>(this)->boxplus(dsp);
+  }
+
+  // --- //
   ManifoldBase_(const ManifoldBase_& other) : data(other.data) {
     if constexpr (log) std::cout << Derived::name << "MBase copy ctor\n";
   }
@@ -43,13 +59,13 @@ constexpr size_t off_f();
 
 template <typename... Manifolds_>
 struct ManifoldComp_ : public ManifoldBase_<ManifoldComp_<Manifolds_...>,
-                                            std::tuple<Manifolds_...>> {
+                                            std::tuple<Manifolds_...>,
+                                            (Manifolds_::dim + ... + 0)> {
   using DataType = std::tuple<Manifolds_...>;
-  using BaseType = ManifoldBase_<ManifoldComp_, DataType>;
+  using BaseType =
+      ManifoldBase_<ManifoldComp_, DataType, (Manifolds_::dim + ... + 0)>;
 
   using BaseType::ManifoldBase_;
-
-  static constexpr size_t dim = (Manifolds_::dim + ... + 0);
 
   template <size_t I>
   static constexpr size_t dimi = dim_f<DataType, I>();
@@ -73,26 +89,27 @@ struct ManifoldComp_ : public ManifoldBase_<ManifoldComp_<Manifolds_...>,
 };
 
 template <size_t dim_>
-struct Euclidean_
-    : public ManifoldBase_<Euclidean_<dim_>, Eigen::Vector<double, dim_>> {
+struct Euclidean_ : public ManifoldBase_<Euclidean_<dim_>,
+                                         Eigen::Vector<double, dim_>, dim_> {
   static constexpr size_t dim = dim_;
   using DataType = Eigen::Vector<double, dim>;
-  using BaseType = ManifoldBase_<Euclidean_, DataType>;
+  using BaseType = ManifoldBase_<Euclidean_, DataType, dim_>;
   using BaseType::ManifoldBase_;
 
-  Euclidean_() : BaseType(std::move(DataType::Ones())) {}
+  Euclidean_() : BaseType(DataType::Zero()) {}
 
-  template <typename T>
-  auto boxplus(const Eigen::MatrixBase<T>& dsp) const {
-    return this->data + dsp;
+  // in place!
+  template <typename Derived>
+  void boxplus(const Eigen::MatrixBase<Derived>& dsp) {
+    this->data += dsp;
   }
 
   inline static const std::string name = "eucl";
 };
 
-template <typename Derived, typename DataType>
+template <typename Derived, typename DataType, size_t dim>
 std::ostream& operator<<(std::ostream& os,
-                         const ManifoldBase_<Derived, DataType>& m) {
+                         const ManifoldBase_<Derived, DataType, dim>& m) {
   os << m.data;
   return os;
 }
