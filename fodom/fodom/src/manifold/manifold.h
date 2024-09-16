@@ -21,6 +21,8 @@ struct ManifoldBase_ {
   static constexpr size_t dim = dim_;
   using TangentType = Eigen::Vector<double, dim>;
 
+  // binds to anything that can be used to construct
+  // data, and hopefully nothing else
   template <typename T>
   ManifoldBase_(T&& d) : data(std::forward<T>(d)) {
     if constexpr (log) std::cout << Derived::name << "MBase data ctor\n";
@@ -34,7 +36,16 @@ struct ManifoldBase_ {
   }
 
   template <typename D>
+  Derived& operator+=(const Eigen::MatrixBase<D>& dsp) {
+    static_cast<Derived*>(this)->boxplus(dsp);
+    return *this;
+  }
+
+  // not sure if needed, maybe replace with error
+  // (if this is called, Derived did not implement boxplus)
+  template <typename D>
   void boxplus(const Eigen::MatrixBase<D>& dsp) {
+    if constexpr (log) std::cout << Derived::name << "boxplus\n";
     return static_cast<Derived*>(this)->boxplus(dsp);
   }
 
@@ -73,15 +84,15 @@ struct ManifoldComp_ : public ManifoldBase_<ManifoldComp_<Manifolds_...>,
   static constexpr size_t offi = off_f<DataType, I>();
 
   template <typename Derived, std::size_t... I>
-  auto boxplus_impl(const Eigen::MatrixBase<Derived>& dsp,
-                    std::index_sequence<I...>) const {
-    return std::make_tuple(
-        std::get<I>(this->data)
-            .boxplus(dsp.template segment<dimi<I>>(offi<I>))...);
+  void boxplus_impl(const Eigen::MatrixBase<Derived>& dsp,
+                    std::index_sequence<I...>) {
+    return (
+        std::get<I>(this->data).boxplus(dsp.template segment<dimi<I>>(offi<I>)),
+        ...);
   }
 
   template <typename Derived>
-  auto boxplus(const Eigen::MatrixBase<Derived>& dsp) const {
+  void boxplus(const Eigen::MatrixBase<Derived>& dsp) {
     return boxplus_impl(dsp, std::index_sequence_for<Manifolds_...>{});
   }
 
