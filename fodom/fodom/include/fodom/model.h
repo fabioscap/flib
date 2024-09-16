@@ -16,17 +16,18 @@ struct IMUOutput : public ManifoldComp_<ManifoldSO3,    // Orientation
                                         Euclidean_<3>,  // Angular Velocity
                                         Euclidean_<3>   // Acceleration
                                         > {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   using BaseType = ThisType;
   using ThisType = IMUOutput;
   using InputType = Vector_<Scalar, 12>;
 
   inline IMUOutput() = default;
-  inline IMUOutput(const BaseType& other) : BaseType(other) {}
+  /*   inline IMUOutput(const BaseType& other) : BaseType(other) {}
 
-  ThisType& operator=(const BaseType& other) {
-    this->BaseType::operator=(other);
-    return *this;
-  }
+    ThisType& operator=(const BaseType& other) {
+      this->BaseType::operator=(other);
+      return *this;
+    } */
 
   // u: random walk bias noise (gyro, acc)
   //    gaussian noise on angular acceleration and jerk

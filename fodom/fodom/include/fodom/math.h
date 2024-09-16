@@ -96,4 +96,36 @@ void fixRotation(MatrixType_ &R) {
   R -= 0.5 * R * E;
 }
 
+template <typename Scalar_>
+Eigen::Quaternion<Scalar_> r2q(const Matrix3_<Scalar_> &R_) {
+  Eigen::Quaternion<Scalar_> q;
+  Scalar_ t = R_.trace();
+  if (t > Scalar_(0.)) {
+    t = sqrt(t + Scalar_(1.0));
+    q.w() = Scalar_(0.5) * t;
+    t = Scalar_(0.5) / t;
+    q.x() = (R_.coeff(2, 1) - R_.coeff(1, 2)) * t;
+    q.y() = (R_.coeff(0, 2) - R_.coeff(2, 0)) * t;
+    q.z() = (R_.coeff(1, 0) - R_.coeff(0, 1)) * t;
+  } else {
+    int i = 0;
+    if (R_.coeff(1, 1) > R_.coeff(0, 0)) {
+      i = 1;
+    }
+    if (R_.coeff(2, 2) > R_.coeff(i, i)) {
+      i = 2;
+    }
+    int j = (i + 1) % 3;
+    int k = (j + 1) % 3;
+
+    t = sqrt(R_.coeff(i, i) - R_.coeff(j, j) - R_.coeff(k, k) + Scalar_(1.0));
+    q.coeffs().coeffRef(i) = Scalar_(0.5) * t;
+    t = Scalar_(0.5) / t;
+    q.w() = (R_.coeff(k, j) - R_.coeff(j, k)) * t;
+    q.coeffs().coeffRef(j) = (R_.coeff(j, i) + R_.coeff(i, j)) * t;
+    q.coeffs().coeffRef(k) = (R_.coeff(k, i) + R_.coeff(i, k)) * t;
+  }
+  return q;
+}
+
 }  // namespace fodom

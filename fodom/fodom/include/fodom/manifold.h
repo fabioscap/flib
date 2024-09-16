@@ -8,7 +8,7 @@ namespace fodom {
 
 size_t c_cnt{0};
 
-constexpr bool log = false;
+constexpr bool log = true;
 template <int dim>
 using TangentType_ = Vector_<Scalar, dim>;
 template <typename Derived>
@@ -45,23 +45,18 @@ struct Euclidean_ : public ManifoldBase_<TangentType_<dim>, dim> {
   using DataType = typename BaseType::DataType;
   using TangentType = typename BaseType::TangentType;
 
-  Euclidean_() {}
+  Euclidean_() : BaseType(DataType::Zero()) {}
   template <typename T>
   Euclidean_(T&& data) noexcept : BaseType(std::forward<T>(data)) {
-    // if constexpr (log) std::cout << "data ctor\n";
+    if constexpr (log) std::cout << "data ctor\n";
   }
 
-  Euclidean_(const Euclidean_& other) {
-    // if constexpr (log) std::cout << "cp";
-  }
-
-  Euclidean_(Euclidean_&& other) noexcept {
-    // if constexpr (log) std::cout << "mv";
-  }
+  /*   Euclidean_(const Euclidean_& other) = delete;
+    Euclidean_(Euclidean_&& other) = delete; */
 
   template <typename D>
   inline auto boxplus(const TangentTypeIn_<D>& dsp) const {
-    // if constexpr (log) std::cout << "bplus eucl\n";
+    if constexpr (log) std::cout << "bplus eucl\n";
     return (this->data + dsp);
   }
 
@@ -82,12 +77,12 @@ struct ManifoldComp_<Manifold> {
   ManifoldComp_() = default;
   template <typename T>
   ManifoldComp_(T&& m) noexcept : manifold_(std::forward<T>(m)) {
-    // if constexpr (log) std::cout << "comp ctor " << dim << "\n";
+    if constexpr (log) std::cout << "comp ctor " << dim << "\n";
   }
 
   template <typename D>
   inline ThisType boxplus(const Eigen::MatrixBase<D>& dsp) const {
-    // if constexpr (log) std::cout << "bplus comp end\n";
+    if constexpr (log) std::cout << "bplus comp end\n";
     return ThisType{manifold_.boxplus(dsp)};
   }
   TangentType boxminus(const ThisType& to) const;
@@ -110,15 +105,12 @@ struct ManifoldComp_<Manifold, Rest...> {
   ManifoldComp_() = default;
   template <typename M, typename R>
   ManifoldComp_(M&& m, R&& r) noexcept
-      : manifold_(std::forward<M>(m)), rest_(std::forward<R>(r)) {
-    // if constexpr (log) std::cout << "comp ctor " << dim << "\n";
-  }
+      : manifold_(std::forward<M>(m)), rest_(std::forward<R>(r)) {}
 
   template <typename D>
-  inline ThisType boxplus(const TangentTypeIn_<D>& dsp) const {
-    return ThisType{
-        std::move(manifold_.boxplus(dsp.template head<Manifold::dim>())),
-        std::move(rest_.boxplus(dsp.template tail<dim - Manifold::dim>()))};
+  inline auto boxplus(const TangentTypeIn_<D>& dsp) const {
+    return ThisType{manifold_.boxplus(dsp.template head<Manifold::dim>()),
+                    rest_.boxplus(dsp.template tail<dim - Manifold::dim>())};
   }
   TangentType boxminus(const ThisType& to) const;
 

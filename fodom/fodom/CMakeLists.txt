@@ -2,19 +2,25 @@ cmake_minimum_required(VERSION 3.8)
 project(fodom)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -std=c++17 -O3)
 endif()
 
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
+add_subdirectory(third_party/nanobench)
+
+
 
 add_library(fodom SHARED 
             src/manifold.cpp
-            src/model.cpp
-            src/odom.cpp
+            #src/model.cpp
+            #src/odom.cpp
             src/utils.cpp)
 target_link_libraries(fodom PUBLIC Eigen3::Eigen)
+
+target_link_libraries(fodom PUBLIC nanobench)
+
 
 target_include_directories(fodom
     PUBLIC
