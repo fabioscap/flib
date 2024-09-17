@@ -25,7 +25,7 @@ struct ManifoldBase_ {
   DataType data;
 
   static constexpr size_t dim = dim_;
-  using TangentType = Eigen::Vector<double, dim>;
+  using TangentType = Eigen::Vector<Scalar, dim>;
 
   // binds to anything that can be used to construct
   // data, and hopefully nothing else
@@ -119,9 +119,9 @@ struct ManifoldComp_ : public ManifoldBase_<ManifoldComp_<Manifolds_...>,
 
 template <size_t dim_>
 struct Euclidean_ : public ManifoldBase_<Euclidean_<dim_>,
-                                         Eigen::Vector<double, dim_>, dim_> {
+                                         Eigen::Vector<Scalar, dim_>, dim_> {
   static constexpr size_t dim = dim_;
-  using DataType = Eigen::Vector<double, dim>;
+  using DataType = Eigen::Vector<Scalar, dim>;
   using BaseType = ManifoldBase_<Euclidean_, DataType, dim_>;
   using BaseType::ManifoldBase_;
 
