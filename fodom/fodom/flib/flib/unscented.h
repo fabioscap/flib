@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 
 #include "common.h"
+#include "math.h"
 
 namespace flib {
 namespace unscented {
@@ -108,9 +109,7 @@ void UnscentedTransform<StateType>::compute_sigma_points(
   auto& points = spoints.points;
 
   points.resize(2 * state_dim + 1);
-  std::cout << "-s-\n";
   points[0] = mean;
-  std::cout << "-s-\n";
   for (size_t i = 0; i < state_dim; ++i) {
     // padre pio
     mean.boxplus(L_scaled.col(i), points[2 * i + 1]);

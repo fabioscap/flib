@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 
 namespace flib {
+namespace math {
 template <typename Scalar_>
 using VectorX_ = Eigen::Matrix<Scalar_, Eigen::Dynamic, 1>;
 
@@ -127,5 +128,5 @@ Eigen::Quaternion<Scalar_> r2q(const Matrix3_<Scalar_> &R_) {
   }
   return q;
 }
-
+}  // namespace math
 }  // namespace flib
