@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-namespace fodom {
+namespace flib {
 template <typename Scalar_>
 using VectorX_ = Eigen::Matrix<Scalar_, Eigen::Dynamic, 1>;
 
@@ -128,4 +128,4 @@ Eigen::Quaternion<Scalar_> r2q(const Matrix3_<Scalar_> &R_) {
   return q;
 }
 
-}  // namespace fodom
+}  // namespace flib
