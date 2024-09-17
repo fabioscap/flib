@@ -1,7 +1,12 @@
+#pragma once
+
 #include <Eigen/Dense>
 #include <iostream>
 #include <utility>
 
+#include "common.h"
+
+namespace flib {
 namespace manifold {
 
 constexpr size_t log = true;
@@ -15,6 +20,7 @@ std::ostream& operator<<(std::ostream& os, const std::tuple<Types...>& t) {
 
 template <typename Derived, typename DataType_, size_t dim_>
 struct ManifoldBase_ {
+  // using Scalar_ = Scalar;
   using DataType = DataType_;
   DataType data;
 
@@ -24,29 +30,27 @@ struct ManifoldBase_ {
   // binds to anything that can be used to construct
   // data, and hopefully nothing else
   template <typename T>
-  ManifoldBase_(T&& d) : data(std::forward<T>(d)) {
+  ManifoldBase_(T&& d) noexcept : data(std::forward<T>(d)) {
     if constexpr (log) std::cout << Derived::name << "MBase data ctor\n";
   }
 
   template <typename D>
-  Derived operator+(const Eigen::MatrixBase<D>& dsp) const {
+  Derived& boxplus(const Eigen::MatrixBase<D>& dsp, Derived& out) const {
+    out = *static_cast<const Derived*>(this);
+    out.perturb(dsp);
+    return out;
+  }
+
+  template <typename D>
+  Derived boxplus(const Eigen::MatrixBase<D>& dsp) const {
     Derived out(*static_cast<const Derived*>(this));
-    out.boxplus(dsp);
-    return out;  // NRVO
+    out.perturb(dsp);
+    return out;
   }
 
   template <typename D>
-  Derived& operator+=(const Eigen::MatrixBase<D>& dsp) {
-    static_cast<Derived*>(this)->boxplus(dsp);
-    return *this;
-  }
-
-  // not sure if needed, maybe replace with error
-  // (if this is called, Derived did not implement boxplus)
-  template <typename D>
-  void boxplus(const Eigen::MatrixBase<D>& dsp) {
-    if constexpr (log) std::cout << Derived::name << "boxplus\n";
-    return static_cast<Derived*>(this)->boxplus(dsp);
+  void boxplus_inplace(const Eigen::MatrixBase<D>& dsp) {
+    static_cast<Derived*>(this)->perturb(dsp);
   }
 
   // --- //
@@ -59,6 +63,20 @@ struct ManifoldBase_ {
 
   ManifoldBase_() {
     if constexpr (log) std::cout << Derived::name << "MBase def  ctor\n";
+  }
+
+  ManifoldBase_& operator=(const ManifoldBase_& other) {
+    if constexpr (log) std::cout << Derived::name << "MBase eq assgn\n";
+    if (this != &other) {
+      data = other.data;
+    }
+    return *this;
+  }
+
+  ManifoldBase_& operator=(ManifoldBase_&& other) noexcept {
+    if constexpr (log) std::cout << Derived::name << "MBase eq mvassgn\n";
+    data = std::move(other.data);
+    return *this;
   }
 };
 
@@ -84,16 +102,16 @@ struct ManifoldComp_ : public ManifoldBase_<ManifoldComp_<Manifolds_...>,
   static constexpr size_t offi = off_f<DataType, I>();
 
   template <typename Derived, std::size_t... I>
-  void boxplus_impl(const Eigen::MatrixBase<Derived>& dsp,
+  void perturb_impl(const Eigen::MatrixBase<Derived>& dsp,
                     std::index_sequence<I...>) {
     return (
-        std::get<I>(this->data).boxplus(dsp.template segment<dimi<I>>(offi<I>)),
+        std::get<I>(this->data).perturb(dsp.template segment<dimi<I>>(offi<I>)),
         ...);
   }
 
   template <typename Derived>
-  void boxplus(const Eigen::MatrixBase<Derived>& dsp) {
-    return boxplus_impl(dsp, std::index_sequence_for<Manifolds_...>{});
+  void perturb(const Eigen::MatrixBase<Derived>& dsp) {
+    return perturb_impl(dsp, std::index_sequence_for<Manifolds_...>{});
   }
 
   inline static const std::string name = "comp";
@@ -111,8 +129,12 @@ struct Euclidean_ : public ManifoldBase_<Euclidean_<dim_>,
 
   // in place!
   template <typename Derived>
-  void boxplus(const Eigen::MatrixBase<Derived>& dsp) {
+  void perturb(const Eigen::MatrixBase<Derived>& dsp) {
     this->data += dsp;
+  }
+
+  auto boxminus(const Euclidean_& other) const {
+    return this->data - other.data;
   }
 
   inline static const std::string name = "eucl";
@@ -138,5 +160,5 @@ constexpr size_t off_f() {
   else
     return dim_f<TupleType, Idx - 1>() + off_f<TupleType, Idx - 1>();
 }
-
 }  // namespace manifold
+}  // namespace flib
