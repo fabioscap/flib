@@ -15,7 +15,7 @@ RUN echo "export _colcon_cd_root=/opt/ros/humble/" >> ~/.bashrc
 
 RUN apt install ros-$ROS_DISTRO-rviz2 ros-$ROS_DISTRO-plotjuggler-ros ros-dev-tools -y
 
-RUN apt install wget -y && wget https://get.foxglove.dev/desktop/latest/foxglove-studio-2.10.0-linux-amd64.deb && DEBIAN_FRONTEND=noninteractive apt install ./foxglove-studio-*.deb -y
+RUN apt install wget -y && wget https://get.foxglove.dev/desktop/v2.13.0/foxglove-studio-2.13.0-linux-amd64.deb && DEBIAN_FRONTEND=noninteractive apt install ./foxglove-studio-*.deb -y
 
 WORKDIR /root
 
