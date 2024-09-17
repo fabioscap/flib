@@ -1,9 +1,11 @@
 #pragma once
 
-#include "fodom/math.h"
+#include "flib/common.h"
+#include "flib/math.h"
 
 namespace fodom {
-using Scalar = double;
+using Scalar = flib::Scalar;
+using namespace flib::math;
 
 template <typename Scalar_>
 struct IMUMeasurement {

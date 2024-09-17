@@ -15,13 +15,27 @@ Eigen::Vector<Scalar, 24> u = Eigen::Vector<Scalar, 24>::Ones();
 template <typename T>
 double benchmark(T& x) {
   for (size_t i = 0; i < N; ++i) {
-    T temp{x.boxplus(u)};
+    x.boxplus(u);
   }
   size_t t{0};
   ankerl::nanobench::Bench().minEpochIterations(5000).run("boxplus", [&] {
     asm volatile("" ::"r"(1.23));
     ++t;
+    T temp{x.boxplus(u)};
+  });
+  std::cout << t << "\n";
+  return 0;
+}
+template <typename T>
+double benchmark2(T& x) {
+  for (size_t i = 0; i < N; ++i) {
     x.boxplus(u);
+  }
+  size_t t{0};
+  ankerl::nanobench::Bench().minEpochIterations(5000).run("boxplus", [&] {
+    asm volatile("" ::"r"(1.23));
+    ++t;
+    T temp{x + u};
   });
   std::cout << t << "\n";
   return 0;
@@ -31,8 +45,7 @@ template <typename T>
 double run(T& x) {
   asm volatile("" ::"r"(1.23));
   std::cout << x << "\n\n";
-  T temp{x.boxplus(u)};
-  std::cout << temp << "\n\n";
+  x.boxplus(u);
   return 0;
 }
 
@@ -110,14 +123,14 @@ int main() {
   eigFull eigfull;
   eigBlock eigblock;
 
-  /*   benchmark(eigblock);
-    benchmark(eigfull);
-    benchmark(eucl);
-    benchmark(eucl_comp);
-    benchmark(eucl2);
-    benchmark(eucl_comp2); */
-  run(eucl_comp);
-  run(eucl_comp2);
+  benchmark(eigblock);
+  benchmark(eigfull);
+  benchmark(eucl);
+  benchmark(eucl_comp);
+  benchmark2(eucl2);
+  benchmark2(eucl_comp2);
+  /*   run(eucl_comp);
+    run(eucl_comp2); */
 
   return 0;
 }

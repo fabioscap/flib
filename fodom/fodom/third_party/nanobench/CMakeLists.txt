@@ -6,10 +6,14 @@ target_include_directories(nanobench PUBLIC
     $<INSTALL_INTERFACE:include>)
 
 install(TARGETS nanobench
-    EXPORT fodomTargets
+    EXPORT nanobenchTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include)
 
 install(FILES nanobench.h DESTINATION include)
+
+install(EXPORT nanobenchTargets
+    FILE nanobenchTargets.cmake
+    DESTINATION lib/cmake/nanobench)
