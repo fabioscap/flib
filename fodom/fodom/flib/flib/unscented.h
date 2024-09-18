@@ -3,7 +3,6 @@
 #include <Eigen/Dense>
 
 #include "common.h"
-#include "math.h"
 
 namespace flib {
 namespace unscented {
@@ -47,7 +46,8 @@ class UnscentedTransform {
 template <typename StateType>
 void propagate(StateType& mean,
                typename UnscentedTransform<StateType>::CovType& cov,
-               void (*f)(StateType&)) {
+               // void (*f)(StateType&)
+               std::function<void(StateType&)> f) {
   UnscentedTransform<StateType> ut;
   typename UnscentedTransform<StateType>::SigmaPoints spoints;
 
@@ -104,7 +104,6 @@ void UnscentedTransform<StateType>::compute_sigma_points(
     const StateType& mean, const CovType& L_scaled,
     SigmaPoints& spoints) const {
   constexpr int state_dim = StateType::dim;
-  using TangentType = typename StateType::TangentType;
 
   auto& points = spoints.points;
 
@@ -136,7 +135,7 @@ void UnscentedTransform<StateType>::mean_from_sigma_points(
       displacement += wmi * mean.boxminus(Xi);
     }
     // add it to the mean
-    mean = mean.boxplus(displacement);
+    mean.boxplus_inplace(displacement);
   }
 }
 
@@ -184,3 +183,14 @@ void UnscentedTransform<StateType>::toUnscented(const StateType& mean,
 
 }  // namespace unscented
 }  // namespace flib
+
+namespace flib {
+
+namespace unscented {
+using namespace manifold;
+extern template class UnscentedTransform<ManifoldComp_<
+    ManifoldSO3, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>,
+    Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>>>;
+}  // namespace unscented
+
+}

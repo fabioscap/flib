@@ -4,9 +4,13 @@
 #include <fstream>
 #include <memory>
 
+#include "flib/math.h"
+
 namespace synthetic {
 
 using namespace fodom;
+
+using namespace flib::math;
 
 const Scalar a = 100.0;  // amplitude parameter
 void SE3EightTrajectory::sampleTrajectory(Scalar t, Vector3_<Scalar>& pos,
@@ -229,7 +233,7 @@ void MeasurementTrajectory::generateData(
     curr_vel += dt * acceleration;
 
     Matrix3_<Scalar> R_curr = curr_pose.linear();
-    R_curr *= expMapSO3((angular_vel * dt).eval());
+    R_curr *= expMapSO3<Scalar>((angular_vel * dt).eval());
 
     fixRotation(R_curr);
     curr_pose.linear() = R_curr;

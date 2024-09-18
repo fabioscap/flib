@@ -28,16 +28,26 @@ using Matrix3_ = Eigen::Matrix<Scalar_, 3, 3>;
 template <typename Scalar_>
 using Isometry3_ = Eigen::Transform<Scalar_, 3, Eigen::Isometry>;
 
-template <typename Scalar_>
-inline Matrix3_<Scalar_> skew(const Vector3_<Scalar_> &v_) {
+template <typename Scalar_, typename D>
+inline Matrix3_<Scalar_> skew(const Eigen::MatrixBase<D> &v_) {
+  static_assert(
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      "Scalar types do not match");
+  static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
+                Eigen::MatrixBase<D>::ColsAtCompileTime == 1);
   Matrix3_<Scalar_> S;
   S << Scalar_(0.), -v_[2], v_[1], v_[2], Scalar_(0.), -v_[0], -v_[1], v_[0],
       Scalar_(0.);
   return S;
 }
 
-template <typename Scalar_>
-inline Vector3_<Scalar_> logMapSO3(const Matrix3_<Scalar_> &R) {
+template <typename Scalar_, typename D>
+inline Vector3_<Scalar_> logMapSO3(const Eigen::MatrixBase<D> &R) {
+  static_assert(
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      "Scalar types do not match");
+  static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
+                Eigen::MatrixBase<D>::ColsAtCompileTime == 3);
   const Scalar_ &R11 = R(0, 0), R12 = R(0, 1), R13 = R(0, 2);
   const Scalar_ &R21 = R(1, 0), R22 = R(1, 1), R23 = R(1, 2);
   const Scalar_ &R31 = R(2, 0), R32 = R(2, 1), R33 = R(2, 2);
@@ -73,21 +83,25 @@ inline Vector3_<Scalar_> logMapSO3(const Matrix3_<Scalar_> &R) {
   return omega;
 }
 
-template <typename Scalar_>
-inline Matrix3_<Scalar_> expMapSO3(const Vector3_<Scalar_> &omega_) {
-  Matrix3_<Scalar_> R;
+template <typename Scalar_, typename D>
+inline Matrix3_<Scalar_> expMapSO3(const Eigen::MatrixBase<D> &omega_) {
+  static_assert(
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      "Scalar types do not match");
+  static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
+                Eigen::MatrixBase<D>::ColsAtCompileTime == 1);
   Scalar_ theta_square = omega_.dot(omega_);
   Scalar_ theta = sqrt(theta_square);
-  Matrix3_<Scalar_> W = skew(omega_);
+  Matrix3_<Scalar_> W = skew<Scalar>(omega_);
   Matrix3_<Scalar_> K = W / theta;
   if (theta_square < Scalar_(1e-8)) {
-    R = Matrix3_<Scalar_>::Identity() + W;
+    return Matrix3_<Scalar_>::Identity() + W;
   } else {
     Scalar_ one_minus_cos =
         Scalar_(2) * sin(theta / Scalar_(2)) * sin(theta / Scalar_(2));
-    R = Matrix3_<Scalar_>::Identity() + sin(theta) * K + one_minus_cos * K * K;
+    return Matrix3_<Scalar_>::Identity() + sin(theta) * K +
+           one_minus_cos * K * K;
   }
-  return R;
 }
 
 template <typename MatrixType_>
@@ -97,8 +111,13 @@ void fixRotation(MatrixType_ &R) {
   R -= 0.5 * R * E;
 }
 
-template <typename Scalar_>
-Eigen::Quaternion<Scalar_> r2q(const Matrix3_<Scalar_> &R_) {
+template <typename Scalar_, typename D>
+Eigen::Quaternion<Scalar_> r2q(const Eigen::MatrixBase<D> &R_) {
+  static_assert(
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      "Scalar types do not match");
+  static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
+                Eigen::MatrixBase<D>::ColsAtCompileTime == 3);
   Eigen::Quaternion<Scalar_> q;
   Scalar_ t = R_.trace();
   if (t > Scalar_(0.)) {
