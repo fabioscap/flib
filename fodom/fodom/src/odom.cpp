@@ -7,6 +7,8 @@
 
 namespace fodom {
 
+using namespace flib;
+
 Odom::Odom(void (*f)(const std::string&),
            const std::shared_ptr<StopWatchBase>& sw)
     : log_function_(f), sw_(sw) {};
@@ -15,16 +17,8 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 
   // UT
-  UnscentedTransform ut;
-  ut.weight_scheme_ = WeightScheme::HB;
-  SigmaPoints<ModelType> spoints;
-  ut.toUnscented(X_, S_, spoints);
-  for (size_t i = 0; i < spoints.points.size(); ++i) {
-    auto& point = spoints.points.at(i);
-    point = ModelType::fwd(point, u, dt);
-  }
-  ut.toMeanCov(spoints, X_, S_);
-
+  unscented::propagate<ModelType>(X_, S_,
+                                  [&u, &dt](ModelType& x) { x.fwd(u, dt); });
   // add process covariance
 
   stamp_ += dt;
@@ -43,11 +37,11 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
   }
   stamp_ = meas.stamp;
 
-  auto acc_c = meas.lin_acc - X_.get<4>().data;
-  auto ang_c = meas.ang_vel - X_.get<3>().data;
+  auto acc_c = meas.lin_acc - X_.ba();
+  auto ang_c = meas.ang_vel - X_.bg();
 
   Vector_<Scalar, 6> res;
-  res << X_.get<6>().data - ang_c, X_.get<7>().data - acc_c;
+  res << X_.om() - ang_c, X_.a() - acc_c;
 
   MatrixNM_<Scalar, 6, IMUOutput::dim> J =
       MatrixNM_<Scalar, 6, IMUOutput::dim>::Zero();
@@ -58,7 +52,7 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
                .inverse();
 
   S_ *= (CovType::Identity() - K * J);
-  X_ = X_.boxplus(K * res);
+  X_.boxplus_inplace(K * res);
 
   /*   std::ostringstream s;
     s << K * res;

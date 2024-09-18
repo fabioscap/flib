@@ -2,14 +2,12 @@
 
 #include <iostream>
 
+#include "flib/manifold.h"
 #include "fodom/common.h"
-#include "fodom/manifold.h"
-#include "fodom/manifold2.h"
-#include "fodom/utils.h"
 
 using namespace fodom;
+using namespace flib::manifold;
 
-ChronoStopWatch sw;
 static constexpr size_t N = 10000;
 Eigen::Vector<Scalar, 24> u = Eigen::Vector<Scalar, 24>::Ones();
 template <typename T>
@@ -20,24 +18,8 @@ double benchmark(T& x) {
   size_t t{0};
   ankerl::nanobench::Bench().minEpochIterations(5000).run("boxplus", [&] {
     asm volatile("" ::"r"(1.23));
-    ++t;
     T temp{x.boxplus(u)};
   });
-  std::cout << t << "\n";
-  return 0;
-}
-template <typename T>
-double benchmark2(T& x) {
-  for (size_t i = 0; i < N; ++i) {
-    x.boxplus(u);
-  }
-  size_t t{0};
-  ankerl::nanobench::Bench().minEpochIterations(5000).run("boxplus", [&] {
-    asm volatile("" ::"r"(1.23));
-    ++t;
-    T temp{x + u};
-  });
-  std::cout << t << "\n";
   return 0;
 }
 
@@ -61,7 +43,7 @@ struct eigFull {
 
   template <typename D>
   inline eigFull boxplus(const Eigen::MatrixBase<D>& u) {
-    ++xxd;
+    // ++xxd;
     return eigFull(X + u);
   }
   Vector_<Scalar, 24> X;
@@ -91,7 +73,7 @@ struct eigBlock {
     // xxd++;
   }
   inline eigBlock boxplus(const Vector_<Scalar, 24>& u) {
-    ++xxd;
+    // ++xxd;
     return eigBlock(
         X0 + u.template head<3>(), X1 + u.template segment<3>(3),
         X2 + u.template segment<3>(6), X3 + u.template segment<3>(9),
@@ -113,11 +95,9 @@ int main() {
   ManifoldComp_<Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>,
                 Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>>
       eucl_comp;
-  manifold::Euclidean_<24> eucl2;
-  manifold::ManifoldComp_<manifold::Euclidean_<3>, manifold::Euclidean_<3>,
-                          manifold::Euclidean_<3>, manifold::Euclidean_<3>,
-                          manifold::Euclidean_<3>, manifold::Euclidean_<3>,
-                          manifold::Euclidean_<3>, manifold::Euclidean_<3>>
+  Euclidean_<24> eucl2;
+  ManifoldComp_<Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>,
+                Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>>
       eucl_comp2;
 
   eigFull eigfull;
@@ -127,10 +107,6 @@ int main() {
   benchmark(eigfull);
   benchmark(eucl);
   benchmark(eucl_comp);
-  benchmark2(eucl2);
-  benchmark2(eucl_comp2);
-  /*   run(eucl_comp);
-    run(eucl_comp2); */
 
   return 0;
 }

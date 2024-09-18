@@ -8,18 +8,14 @@ endif()
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
-add_subdirectory(third_party/nanobench)
-
 add_subdirectory(flib)
 
 add_library(fodom SHARED 
-            #src/model.cpp
-            #src/odom.cpp
+            src/model.cpp
+            src/odom.cpp
             src/utils.cpp
 )
-target_link_libraries(fodom PUBLIC Eigen3::Eigen)
-
-target_link_libraries(fodom PRIVATE flib)
+target_link_libraries(fodom PUBLIC Eigen3::Eigen flib)
 
 target_include_directories(fodom
     PUBLIC
@@ -36,9 +32,10 @@ install(TARGETS fodom
         INCLUDES DESTINATION include)
 
 install(EXPORT fodomTargets
-        FILE fodomConfig.cmake
+        FILE fodomTargets.cmake
         DESTINATION lib/cmake/fodom)
+install(FILES "fodomConfig.cmake" DESTINATION lib/cmake/fodom)
 
 install(DIRECTORY include/ DESTINATION include)
 
-# add_subdirectory(app)
+add_subdirectory(app)
