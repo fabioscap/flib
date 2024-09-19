@@ -8,14 +8,13 @@
 using namespace fodom;
 using namespace flib::manifold;
 
-static constexpr size_t N = 10000;
+static constexpr size_t N = 100;
 Eigen::Vector<Scalar, 24> u = Eigen::Vector<Scalar, 24>::Ones();
 template <typename T>
 double benchmark(T& x) {
   for (size_t i = 0; i < N; ++i) {
     x.boxplus(u);
   }
-  size_t t{0};
   ankerl::nanobench::Bench().minEpochIterations(5000).run("boxplus", [&] {
     asm volatile("" ::"r"(1.23));
     T temp{x.boxplus(u)};

@@ -192,7 +192,7 @@ struct ManifoldSO3
   using BaseType = ManifoldBase_<ManifoldSO3, DataType, 3>;
   using BaseType::ManifoldBase_;
 
-  ManifoldSO3() : BaseType(DataType::Zero()) {}
+  ManifoldSO3() : BaseType(DataType::Identity()) {}
 
   template <typename Derived>
   inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {

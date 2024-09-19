@@ -34,6 +34,8 @@ class Odom {
   Scalar dt_max_ = 1e-3;
 
   ModelType X_;
+  inline const ModelType& state() const { return X_; }
+  inline ModelType& state() { return X_; }
   CovType S_ = 0 * CovType::Identity();
 
   Scalar b_gyro_cov_ = 1e-4;  // (rad/s)^2
