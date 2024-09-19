@@ -32,7 +32,7 @@ class UnscentedTransform {
 
   WeightScheme weight_scheme_ = WeightScheme::UKF;
 
-  Scalar cov_regularizer_ = 1e-100;
+  Scalar cov_regularizer_ = 1e-50;
 
  private:
   void compute_weights_scaling(SigmaPoints& spoints, Scalar& cov_scaling) const;

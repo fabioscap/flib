@@ -4,102 +4,102 @@
 
 namespace flib {
 namespace math {
-template <typename Scalar_>
-using VectorX_ = Eigen::Matrix<Scalar_, Eigen::Dynamic, 1>;
+template <typename Scalar>
+using VectorX_ = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
 
-template <typename Scalar_, int Dim_>
-using Vector_ = Eigen::Matrix<Scalar_, Dim_, 1>;
+template <typename Scalar, int Dim_>
+using Vector_ = Eigen::Matrix<Scalar, Dim_, 1>;
 
-template <typename Scalar_>
-using Vector3_ = Eigen::Matrix<Scalar_, 3, 1>;
+template <typename Scalar>
+using Vector3_ = Eigen::Matrix<Scalar, 3, 1>;
 
-template <typename Scalar_>
-using MatrixX_ = Eigen::Matrix<Scalar_, Eigen::Dynamic, Eigen::Dynamic>;
+template <typename Scalar>
+using MatrixX_ = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>;
 
-template <typename Scalar_, int N_, int M_>
-using MatrixNM_ = Eigen::Matrix<Scalar_, N_, M_>;
+template <typename Scalar, int N_, int M_>
+using MatrixNM_ = Eigen::Matrix<Scalar, N_, M_>;
 
-template <typename Scalar_, int N_>
-using MatrixN_ = Eigen::Matrix<Scalar_, N_, N_>;
+template <typename Scalar, int N_>
+using MatrixN_ = Eigen::Matrix<Scalar, N_, N_>;
 
-template <typename Scalar_>
-using Matrix3_ = Eigen::Matrix<Scalar_, 3, 3>;
+template <typename Scalar>
+using Matrix3_ = Eigen::Matrix<Scalar, 3, 3>;
 
-template <typename Scalar_>
-using Isometry3_ = Eigen::Transform<Scalar_, 3, Eigen::Isometry>;
+template <typename Scalar>
+using Isometry3_ = Eigen::Transform<Scalar, 3, Eigen::Isometry>;
 
-template <typename Scalar_, typename D>
-inline Matrix3_<Scalar_> skew(const Eigen::MatrixBase<D> &v_) {
+template <typename Scalar, typename D>
+inline Matrix3_<Scalar> skew(const Eigen::MatrixBase<D> &v_) {
   static_assert(
-      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar>::value,
       "Scalar types do not match");
   static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
                 Eigen::MatrixBase<D>::ColsAtCompileTime == 1);
-  Matrix3_<Scalar_> S;
-  S << Scalar_(0.), -v_[2], v_[1], v_[2], Scalar_(0.), -v_[0], -v_[1], v_[0],
-      Scalar_(0.);
+  Matrix3_<Scalar> S;
+  S << Scalar(0.), -v_[2], v_[1], v_[2], Scalar(0.), -v_[0], -v_[1], v_[0],
+      Scalar(0.);
   return S;
 }
 
-template <typename Scalar_, typename D>
-inline Vector3_<Scalar_> logMapSO3(const Eigen::MatrixBase<D> &R) {
+template <typename Scalar, typename D>
+inline Vector3_<Scalar> logMapSO3(const Eigen::MatrixBase<D> &R) {
   static_assert(
-      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar>::value,
       "Scalar types do not match");
   static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
                 Eigen::MatrixBase<D>::ColsAtCompileTime == 3);
-  const Scalar_ &R11 = R(0, 0), R12 = R(0, 1), R13 = R(0, 2);
-  const Scalar_ &R21 = R(1, 0), R22 = R(1, 1), R23 = R(1, 2);
-  const Scalar_ &R31 = R(2, 0), R32 = R(2, 1), R33 = R(2, 2);
+  const Scalar &R11 = R(0, 0), R12 = R(0, 1), R13 = R(0, 2);
+  const Scalar &R21 = R(1, 0), R22 = R(1, 1), R23 = R(1, 2);
+  const Scalar &R31 = R(2, 0), R32 = R(2, 1), R33 = R(2, 2);
 
   // Get trace(R)
-  const Scalar_ tr = R.trace();
-  const Scalar_ pi(M_PI);
-  const Scalar_ two(2);
+  const Scalar tr = R.trace();
+  const Scalar pi(M_PI);
+  const Scalar two(2);
 
-  Vector3_<Scalar_> omega;
-  if (tr + Scalar_(1.0) < Scalar_(1e-10)) {
-    if (abs(R33 + Scalar_(1.0)) > Scalar_(1e-5)) {
+  Vector3_<Scalar> omega;
+  if (tr + Scalar(1.0) < Scalar(1e-10)) {
+    if (abs(R33 + Scalar(1.0)) > Scalar(1e-5)) {
       omega = (pi / sqrt(two + two * R33)) *
-              Vector3_<Scalar_>(R13, R23, Scalar_(1.0) + R33);
-    } else if (abs(R22 + Scalar_(1.0)) > Scalar_(1e-5)) {
+              Vector3_<Scalar>(R13, R23, Scalar(1.0) + R33);
+    } else if (abs(R22 + Scalar(1.0)) > Scalar(1e-5)) {
       omega = (pi / sqrt(two + two * R22)) *
-              Vector3_<Scalar_>(R12, Scalar_(1.0) + R22, R32);
+              Vector3_<Scalar>(R12, Scalar(1.0) + R22, R32);
     } else {
       omega = (pi / sqrt(two + two * R11)) *
-              Vector3_<Scalar_>(Scalar_(1.0) + R11, R21, R31);
+              Vector3_<Scalar>(Scalar(1.0) + R11, R21, R31);
     }
   } else {
-    Scalar_ magnitude;
-    const Scalar_ tr_3 = tr - Scalar_(3.0);
-    if (tr_3 < Scalar_(-1e-7)) {
-      Scalar_ theta = acos((tr - Scalar_(1.0)) / two);
+    Scalar magnitude;
+    const Scalar tr_3 = tr - Scalar(3.0);
+    if (tr_3 < Scalar(-1e-7)) {
+      Scalar theta = acos((tr - Scalar(1.0)) / two);
       magnitude = theta / (two * sin(theta));
     } else {
-      magnitude = Scalar_(0.5) - tr_3 * tr_3 / Scalar_(12.0);
+      magnitude = Scalar(0.5) - tr_3 * tr_3 / Scalar(12.0);
     }
-    omega = magnitude * Vector3_<Scalar_>(R32 - R23, R13 - R31, R21 - R12);
+    omega = magnitude * Vector3_<Scalar>(R32 - R23, R13 - R31, R21 - R12);
   }
   return omega;
 }
 
-template <typename Scalar_, typename D>
-inline Matrix3_<Scalar_> expMapSO3(const Eigen::MatrixBase<D> &omega_) {
+template <typename Scalar, typename D>
+inline Matrix3_<Scalar> expMapSO3(const Eigen::MatrixBase<D> &omega_) {
   static_assert(
-      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar>::value,
       "Scalar types do not match");
   static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
                 Eigen::MatrixBase<D>::ColsAtCompileTime == 1);
-  Scalar_ theta_square = omega_.dot(omega_);
-  Scalar_ theta = sqrt(theta_square);
-  Matrix3_<Scalar_> W = skew<Scalar>(omega_);
-  Matrix3_<Scalar_> K = W / theta;
-  if (theta_square < Scalar_(1e-8)) {
-    return Matrix3_<Scalar_>::Identity() + W;
+  Scalar theta_square = omega_.dot(omega_);
+  Scalar theta = sqrt(theta_square);
+  Matrix3_<Scalar> W = skew<Scalar>(omega_);
+  Matrix3_<Scalar> K = W / theta;
+  if (theta_square < Scalar(1e-8)) {
+    return Matrix3_<Scalar>::Identity() + W;
   } else {
-    Scalar_ one_minus_cos =
-        Scalar_(2) * sin(theta / Scalar_(2)) * sin(theta / Scalar_(2));
-    return Matrix3_<Scalar_>::Identity() + sin(theta) * K +
+    Scalar one_minus_cos =
+        Scalar(2) * sin(theta / Scalar(2)) * sin(theta / Scalar(2));
+    return Matrix3_<Scalar>::Identity() + sin(theta) * K +
            one_minus_cos * K * K;
   }
 }
@@ -111,19 +111,19 @@ void fixRotation(MatrixType_ &R) {
   R -= 0.5 * R * E;
 }
 
-template <typename Scalar_, typename D>
-Eigen::Quaternion<Scalar_> r2q(const Eigen::MatrixBase<D> &R_) {
+template <typename Scalar, typename D>
+Eigen::Quaternion<Scalar> r2q(const Eigen::MatrixBase<D> &R_) {
   static_assert(
-      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar_>::value,
+      std::is_same<typename Eigen::MatrixBase<D>::Scalar, Scalar>::value,
       "Scalar types do not match");
   static_assert(Eigen::MatrixBase<D>::RowsAtCompileTime == 3 &&
                 Eigen::MatrixBase<D>::ColsAtCompileTime == 3);
-  Eigen::Quaternion<Scalar_> q;
-  Scalar_ t = R_.trace();
-  if (t > Scalar_(0.)) {
-    t = sqrt(t + Scalar_(1.0));
-    q.w() = Scalar_(0.5) * t;
-    t = Scalar_(0.5) / t;
+  Eigen::Quaternion<Scalar> q;
+  Scalar t = R_.trace();
+  if (t > Scalar(0.)) {
+    t = sqrt(t + Scalar(1.0));
+    q.w() = Scalar(0.5) * t;
+    t = Scalar(0.5) / t;
     q.x() = (R_.coeff(2, 1) - R_.coeff(1, 2)) * t;
     q.y() = (R_.coeff(0, 2) - R_.coeff(2, 0)) * t;
     q.z() = (R_.coeff(1, 0) - R_.coeff(0, 1)) * t;
@@ -138,9 +138,9 @@ Eigen::Quaternion<Scalar_> r2q(const Eigen::MatrixBase<D> &R_) {
     int j = (i + 1) % 3;
     int k = (j + 1) % 3;
 
-    t = sqrt(R_.coeff(i, i) - R_.coeff(j, j) - R_.coeff(k, k) + Scalar_(1.0));
-    q.coeffs().coeffRef(i) = Scalar_(0.5) * t;
-    t = Scalar_(0.5) / t;
+    t = sqrt(R_.coeff(i, i) - R_.coeff(j, j) - R_.coeff(k, k) + Scalar(1.0));
+    q.coeffs().coeffRef(i) = Scalar(0.5) * t;
+    t = Scalar(0.5) / t;
     q.w() = (R_.coeff(k, j) - R_.coeff(j, k)) * t;
     q.coeffs().coeffRef(j) = (R_.coeff(j, i) + R_.coeff(i, j)) * t;
     q.coeffs().coeffRef(k) = (R_.coeff(k, i) + R_.coeff(i, k)) * t;
