@@ -15,6 +15,7 @@ find_package(std_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 
 find_package(fodom REQUIRED)
 
@@ -32,6 +33,7 @@ ament_target_dependencies(fodom_ros_components PUBLIC
   tf2_ros
   geometry_msgs
   sensor_msgs
+  nav_msgs
 )
 target_link_libraries(fodom_ros_components PUBLIC fodom synthetic)
 

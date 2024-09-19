@@ -1,8 +1,11 @@
 #include <chrono>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/header.hpp>
 
+#include "flib/math.h"
+#include "fodom/common.h"
 #include "fodom/utils.h"
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/header.hpp"
 
 namespace fodom {
 
@@ -20,5 +23,8 @@ using fodom::time_to_sec;
 // ros time requires a node handle, you pass it to the constructor as such:
 // ROSStopWatch([node_ptr]() { return node_ptr->now(); });
 using ROSStopWatch = fodom::StopWatch_<rclcpp::Time>;
+
+geometry_msgs::msg::Pose eigenToPoseMsg(
+    const flib::math::Isometry3_<fodom::Scalar>& isometry);
 
 }  // namespace fodom_ros

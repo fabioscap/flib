@@ -1,6 +1,7 @@
+#include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 
-#include "sensor_msgs/msg/imu.hpp"
 #include "synthetic/synthetic.h"
 
 namespace fodom_ros {
@@ -23,5 +24,8 @@ class SynthImuPublisher : public rclcpp::Node {
   size_t msg_cnt{0};
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
   rclcpp::Time ts;
+
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub_;
+  nav_msgs::msg::Path path_msg_;
 };
 }  // namespace fodom_ros

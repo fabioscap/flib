@@ -16,3 +16,23 @@ double time_to_sec(const rclcpp::Duration& duration) {
 }
 
 }  // namespace fodom
+
+namespace fodom_ros {
+geometry_msgs::msg::Pose eigenToPoseMsg(
+    const flib::math::Isometry3_<fodom::Scalar>& isometry) {
+  geometry_msgs::msg::Pose pose_msg;
+
+  pose_msg.position.x = isometry.translation().x();
+  pose_msg.position.y = isometry.translation().y();
+  pose_msg.position.z = isometry.translation().z();
+
+  // Set orientation
+  Eigen::Quaterniond quat(isometry.rotation());
+  pose_msg.orientation.x = quat.x();
+  pose_msg.orientation.y = quat.y();
+  pose_msg.orientation.z = quat.z();
+  pose_msg.orientation.w = quat.w();
+
+  return pose_msg;
+}
+}  // namespace fodom_ros

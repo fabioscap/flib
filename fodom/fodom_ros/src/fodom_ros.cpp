@@ -40,7 +40,7 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
     RCLCPP_INFO(this->get_logger(), "%s", message.c_str());
   };
 
-  robot_.state().g() << 0.0, 0.0, -0.01;
+  // robot_.state().g() << 0.0, 0.0, -0.01;
 }
 void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;
@@ -86,21 +86,22 @@ void FodomROS::timer_callback() {
   // RCLCPP_INFO(this->get_logger(), "%f, %f, %f, %f", 0, 0, 0,
   // t.header.stamp);
 
-  robot_.propagate(decltype(robot_)::InputType::Zero(), dt_);
+  // robot_.propagate(decltype(robot_)::InputType::Zero(), dt_);
 }
 
 void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
-  RCLCPP_INFO(this->get_logger(), "messaggio IMU");
+  RCLCPP_INFO(this->get_logger(), "processing IMU msg...");
 
-  /*   double time_double = time_to_sec(msg->header.stamp);
+  double time_double = time_to_sec(msg->header.stamp);
 
-    fodom::IMUMeasurement<double> m;
-    m.stamp = time_double;
-    m.lin_acc << msg->linear_acceleration.x, msg->linear_acceleration.y,
-        msg->linear_acceleration.z;
-    m.ang_vel << msg->angular_velocity.x, msg->angular_velocity.y,
-        msg->angular_velocity.z;
-    robot_.process_IMU(m); */
+  fodom::IMUMeasurement<double> m;
+  m.stamp = time_double;
+  m.lin_acc << msg->linear_acceleration.x, msg->linear_acceleration.y,
+      msg->linear_acceleration.z;
+  m.ang_vel << msg->angular_velocity.x, msg->angular_velocity.y,
+      msg->angular_velocity.z;
+  robot_.process_IMU(m);
+  RCLCPP_INFO(this->get_logger(), "...done");
 }
 
 }  // namespace fodom_ros
