@@ -23,8 +23,9 @@ add_subdirectory(src/synthetic)
 add_library(fodom_ros_components SHARED 
   src/fodom_ros.cpp
   src/utils.cpp
+  src/synth_imu_publisher.cpp
 )
-ament_target_dependencies(fodom_ros_components 
+ament_target_dependencies(fodom_ros_components PUBLIC
   rclcpp 
   rclcpp_components
   std_msgs
@@ -32,7 +33,7 @@ ament_target_dependencies(fodom_ros_components
   geometry_msgs
   sensor_msgs
 )
-target_link_libraries(fodom_ros_components fodom synthetic)
+target_link_libraries(fodom_ros_components PUBLIC fodom synthetic)
 
 target_include_directories(fodom_ros_components PUBLIC
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
@@ -42,6 +43,12 @@ rclcpp_components_register_node(
   fodom_ros_components
   PLUGIN "fodom_ros::FodomROS"
   EXECUTABLE fodom_ros_node
+)
+
+rclcpp_components_register_node(
+  fodom_ros_components
+  PLUGIN "fodom_ros::SynthImuPublisher"
+  EXECUTABLE synthetic_imu_publisher_node
 )
 
 # install rules

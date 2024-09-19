@@ -1,4 +1,4 @@
-#include "fodom_ros/synthetic/synthetic.h"
+#include "synthetic.h"
 
 #include <cmath>
 #include <fstream>

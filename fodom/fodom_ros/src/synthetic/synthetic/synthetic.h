@@ -1,8 +1,12 @@
+#pragma once
+
 #include <ctime>
 #include <memory>
 #include <random>
 
 #include "fodom/common.h"
+
+// TODO refactor everything to return std::tuple instead of output parameters
 
 // generate an SE(3) trajectory
 // and produce imu measurements
@@ -43,7 +47,7 @@ class SE3PlanarTrajectory : public Trajectory {
       std::vector<std::tuple<IMUMeasurement<Scalar>, Vector3_<Scalar>,
                              Isometry3_<Scalar>>>& data) const override;
 
- protected:
+  // protected:
   virtual void sampleTrajectory(Scalar t, Vector3_<Scalar>& pos,
                                 Vector3_<Scalar>& vel,
                                 Vector3_<Scalar>& acc) const {};

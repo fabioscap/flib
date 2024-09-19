@@ -9,9 +9,9 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     ld = LaunchDescription()
-    print(":LAUCBNAS")
+
     # use_sim_time = LaunchConfiguration('use_sim_time', default=True)
-    use_sim_time = SetParameter(name='use_sim_time', value=True)
+    use_sim_time = SetParameter(name='use_sim_time', value=False)
 
     package_dir = FindPackageShare(package='fodom_ros').find('fodom_ros')    
     rviz_config_file = os.path.join(package_dir, "config", "viz_logger.rviz")
