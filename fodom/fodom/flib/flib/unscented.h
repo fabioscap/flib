@@ -30,7 +30,7 @@ class UnscentedTransform {
   Scalar alpha_{5e-3};
   Scalar k_{0};
 
-  WeightScheme weight_scheme_ = WeightScheme::UKF;
+  WeightScheme weight_scheme_ = WeightScheme::HB;
 
   Scalar cov_regularizer_ = 1e-50;
 
@@ -40,7 +40,7 @@ class UnscentedTransform {
   void compute_sigma_points(const StateType& mean, const CovType& L_scaled,
                             SigmaPoints& spoints) const;
   void mean_from_sigma_points(const SigmaPoints& spoints, StateType& mean,
-                              const size_t n_iters = 10) const;
+                              const size_t n_iters = 1) const;
 };
 
 template <typename StateType>
