@@ -20,8 +20,10 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
   unscented::propagate<ModelType>(X_, S_,
                                   [&u, &dt](ModelType& x) { x.fwd(u, dt); });
   // add process covariance
-  S_ += 1e-100 * dt * CovType::Identity();
-
+  X_.fwd(u, dt);
+  S_ = CovType::Identity();
+  // S_.block<6, 6>(9, 9) += MatrixN_<Scalar, 6>::Identity() * 1e-5;
+  // S_.block<6, 6>(18, 18) += MatrixN_<Scalar, 6>::Identity() * 1e-5;
   stamp_ += dt;
 }
 
@@ -40,24 +42,26 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
       }
   }
   stamp_ = meas.stamp;
-
-  auto acc_c = meas.lin_acc - X_.ba();
-  auto ang_c = meas.ang_vel - X_.bg();
+  auto acc_c = meas.lin_acc;
+  auto ang_c = meas.ang_vel;
 
   Vector_<Scalar, 6> res;
 
-  res << X_.om() - ang_c, X_.a() - acc_c;
-  res *= 0.0;
+  res << ang_c - X_.om(), acc_c - X_.a();
+  // res *= 0.0;
 
   MatrixNM_<Scalar, 6, IMUOutput::dim> J =
       MatrixNM_<Scalar, 6, IMUOutput::dim>::Zero();
-  J.block<6, 6>(0, 9) = MatrixN_<Scalar, 6>::Identity();
+  // J.block<6, 6>(0, 9) = MatrixN_<Scalar, 6>::Identity();
   J.block<6, 6>(0, 18) = MatrixN_<Scalar, 6>::Identity();
-  auto K = S_ * J.transpose() *
-           (J * S_ * J.transpose() + 1e-1 * MatrixN_<Scalar, 6>::Identity())
-               .inverse();
+  auto Y = J * S_ * J.transpose() + 1e-3 * MatrixN_<Scalar, 6>::Identity();
+  auto K = S_ * J.transpose() * Y.inverse();
 
-  S_ *= (CovType::Identity() - K * J);
+  S_ -= K * J * S_;
   X_.boxplus_inplace(K * res);
+
+  std::ostringstream s;
+  s << (S_) << '\n';
+  log_function_(s.str());
 }
 }  // namespace fodom

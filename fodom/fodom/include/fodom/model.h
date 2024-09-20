@@ -14,7 +14,7 @@ struct IMUOutput : public ManifoldComp_<ManifoldSO3,    // Orientation
                                         Euclidean_<3>,  // Bias Gyro
                                         Euclidean_<3>,  // Bias Acc
                                         Euclidean_<3>,  // Gravity Vector global
-                                        Euclidean_<3>,  // frame (Should be S2?)
+                                                        // frame (Should be S2?)
                                         Euclidean_<3>,  // Angular Velocity
                                         Euclidean_<3>   // Acceleration
                                         > {
@@ -22,9 +22,9 @@ struct IMUOutput : public ManifoldComp_<ManifoldSO3,    // Orientation
 
   // u: random walk bias noise (gyro, acc)
   //    gaussian noise on angular acceleration and jerk
-  TangentType vels(const InputType& u) const;
+  TangentType vels(const InputType& u, Scalar dt) const;
 
-  void fwd(const InputType& u, Scalar dt);
+  IMUOutput& fwd(const InputType& u, Scalar dt);
 
   // clang-format off
   inline ManifoldSO3::DataType& R() { return std::get<0>(this->data).data; }

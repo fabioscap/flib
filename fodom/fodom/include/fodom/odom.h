@@ -36,7 +36,7 @@ class Odom {
   ModelType X_;
   inline const ModelType& state() const { return X_; }
   inline ModelType& state() { return X_; }
-  CovType S_ = 0 * CovType::Identity();
+  CovType S_ = 1e-3 * CovType::Identity();
 
   Scalar b_gyro_cov_ = 1e-4;  // (rad/s)^2
   Scalar b_accl_cov_ = 1e-4;  // (m/s^2)^2

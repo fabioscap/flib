@@ -4,6 +4,7 @@
 #include <functional>
 #include <rclcpp_components/register_node_macro.hpp>
 
+#include "flib/math.h"
 #include "fodom/utils.h"
 #include "fodom_ros/utils.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -41,6 +42,9 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
   };
 
   // robot_.state().g() << 0.0, 0.0, -0.01;
+  robot_.state().v() << 0.0, 18.849556, 0.0;
+  robot_.state().R() = flib::math::Rz(3.1414 / 2.0);
+  robot_.state().p() << 30.0, 0.0, 0.0;
 }
 void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;

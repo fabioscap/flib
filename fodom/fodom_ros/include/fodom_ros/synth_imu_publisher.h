@@ -16,7 +16,8 @@ class SynthImuPublisher : public rclcpp::Node {
 
   double freq_{1};
 
-  synthetic::SE3EightTrajectory traj_{20};
+  synthetic::SE3CircleTrajectory traj_{10};
+  flib::math::Isometry3_<fodom::Scalar> t0_in_world_;
   /*   std::vector<std::tuple<synthetic::IMUMeasurement<fodom::Scalar>,
                            flib::math::Vector3_<fodom::Scalar>,
                            flib::math::Isometry3_<fodom::Scalar>>>

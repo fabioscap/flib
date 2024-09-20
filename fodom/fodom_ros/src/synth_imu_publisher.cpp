@@ -37,6 +37,7 @@ void SynthImuPublisher::timer_callback() {
   if (msg_cnt < 1) {
     ts = nowT;
     sample_time = 0;
+
   } else {
     sample_time = std::fmod(time_to_sec(nowT - ts), traj_.T());
   }
@@ -44,6 +45,11 @@ void SynthImuPublisher::timer_callback() {
   Isometry3_<Scalar> pose;
   Vector3_<Scalar> vel;
   traj_.getPoseMeasurement(sample_time, pose, vel, meas);
+  RCLCPP_INFO(this->get_logger(), "vel: %lf %lf %lf", vel.x(), vel.y(),
+              vel.z());
+  if (msg_cnt < 1) {
+    t0_in_world_ = pose;
+  }
 
   msg.header.stamp = nowT;
   msg.linear_acceleration.x = meas.lin_acc.x();
@@ -68,7 +74,7 @@ void SynthImuPublisher::timer_callback() {
   path_msg_.header.frame_id = "world";
 
   path_msg_.poses.push_back(pose_msg);
-  if (path_msg_.poses.size() > 100) {
+  if (false && path_msg_.poses.size() > 100) {
     // sorry
     path_msg_.poses.erase(
         path_msg_.poses.begin(),
