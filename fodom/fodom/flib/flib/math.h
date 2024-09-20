@@ -147,5 +147,38 @@ Eigen::Quaternion<Scalar> r2q(const Eigen::MatrixBase<D> &R_) {
   }
   return q;
 }
+
+template <typename Scalar>
+Eigen::Matrix<Scalar, 3, 3> Rx(Scalar angle) {
+  Eigen::Matrix<Scalar, 3, 3> R;
+  Scalar cos_angle = std::cos(angle);
+  Scalar sin_angle = std::sin(angle);
+
+  R << 1, 0, 0, 0, cos_angle, -sin_angle, 0, sin_angle, cos_angle;
+
+  return R;
+}
+
+template <typename Scalar>
+Eigen::Matrix<Scalar, 3, 3> Ry(Scalar angle) {
+  Eigen::Matrix<Scalar, 3, 3> R;
+  Scalar cos_angle = std::cos(angle);
+  Scalar sin_angle = std::sin(angle);
+
+  R << cos_angle, 0, sin_angle, 0, 1, 0, -sin_angle, 0, cos_angle;
+
+  return R;
+}
+
+template <typename Scalar>
+Eigen::Matrix<Scalar, 3, 3> Rz(Scalar angle) {
+  Eigen::Matrix<Scalar, 3, 3> R;
+  Scalar cos_angle = std::cos(angle);
+  Scalar sin_angle = std::sin(angle);
+
+  R << cos_angle, -sin_angle, 0, sin_angle, cos_angle, 0, 0, 0, 1;
+
+  return R;
+}
 }  // namespace math
 }  // namespace flib
