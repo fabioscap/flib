@@ -130,9 +130,9 @@ void UnscentedTransform<StateType>::mean_from_sigma_points(
   for (size_t i = 0; i < n_iters; ++i) {
     // compute tangent mean displacement
     TangentType displacement = wm0 * mean.boxminus(points.at(0));
-    for (size_t i = 1; i < points.size(); ++i) {
-      const StateType& Xi = points.at(i);
-      displacement += wmi * mean.boxminus(Xi);
+    for (size_t j = 1; j < points.size(); ++j) {
+      const StateType& Xj = points.at(j);
+      displacement += wmi * mean.boxminus(Xj);
     }
     // add it to the mean
     mean.boxplus_inplace(displacement);
