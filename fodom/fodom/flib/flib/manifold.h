@@ -30,6 +30,7 @@ struct ManifoldBase_ {
 
   // binds to anything that can be used to construct
   // data, and hopefully nothing else
+  // Why does it not overshadow copy constructor?
   template <typename T>
   ManifoldBase_(T&& d) noexcept : data(std::forward<T>(d)) {
     if constexpr (log) std::cout << Derived::name << "MBase data ctor\n";
