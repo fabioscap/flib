@@ -17,8 +17,8 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 
   // UT
-  unscented::propagate<ModelType>(X_, S_,
-                                  [&u, &dt](ModelType& x) { x.fwd(u, dt); });
+  // unscented::propagate<ModelType>(X_, S_,
+  //                                [&u, &dt](ModelType& x) { x.fwd(u, dt); });
   // add process covariance
   X_.fwd(u, dt);
   S_ = CovType::Identity();
@@ -40,10 +40,14 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
         else
           propagate(InputType::Zero(), meas.stamp - stamp_);
       }
+  } else {
+    stamp_ = meas.stamp;
   }
-  stamp_ = meas.stamp;
   auto acc_c = meas.lin_acc;
   auto ang_c = meas.ang_vel;
+
+  /*   X_.a() = meas.lin_acc;
+    X_.om() = meas.ang_vel; */
 
   Vector_<Scalar, 6> res;
 
@@ -54,14 +58,16 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
       MatrixNM_<Scalar, 6, IMUOutput::dim>::Zero();
   // J.block<6, 6>(0, 9) = MatrixN_<Scalar, 6>::Identity();
   J.block<6, 6>(0, 18) = MatrixN_<Scalar, 6>::Identity();
-  auto Y = J * S_ * J.transpose() + 1e-3 * MatrixN_<Scalar, 6>::Identity();
+  auto Y = J * S_ * J.transpose() + 1e-1 * MatrixN_<Scalar, 6>::Identity();
   auto K = S_ * J.transpose() * Y.inverse();
 
   S_ -= K * J * S_;
   X_.boxplus_inplace(K * res);
 
   std::ostringstream s;
-  s << (S_) << '\n';
+  s << std::fixed << (stamp_) << '\n';
+  log_function_(s.str());
+  s << std::fixed << (meas.stamp) << '\n';
   log_function_(s.str());
 }
 }  // namespace fodom
