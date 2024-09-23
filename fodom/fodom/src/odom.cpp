@@ -17,11 +17,11 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 
   // UT
-  // unscented::propagate<ModelType>(X_, S_,
-  //                                [&u, &dt](ModelType& x) { x.fwd(u, dt); });
+  unscented::propagate<ModelType>(X_, S_,
+                                  [&u, &dt](ModelType& x) { x.fwd(u, dt); });
   // add process covariance
-  X_.fwd(u, dt);
-  S_ = CovType::Identity();
+  // X_.fwd(u, dt);
+  // S_ = CovType::Identity();
   // S_.block<6, 6>(9, 9) += MatrixN_<Scalar, 6>::Identity() * 1e-5;
   // S_.block<6, 6>(18, 18) += MatrixN_<Scalar, 6>::Identity() * 1e-5;
   stamp_ += dt;
@@ -52,7 +52,6 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
   Vector_<Scalar, 6> res;
 
   res << ang_c - X_.om(), acc_c - X_.a();
-  // res *= 0.0;
 
   MatrixNM_<Scalar, 6, IMUOutput::dim> J =
       MatrixNM_<Scalar, 6, IMUOutput::dim>::Zero();
@@ -65,7 +64,7 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
   X_.boxplus_inplace(K * res);
 
   std::ostringstream s;
-  s << std::fixed << (stamp_) << '\n';
+  s << std::fixed << (S_.block<3, 3>(0, 0)) << '\n';
   log_function_(s.str());
   s << std::fixed << (meas.stamp) << '\n';
   log_function_(s.str());

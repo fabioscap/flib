@@ -27,12 +27,12 @@ class UnscentedTransform {
   // protected:
   // mysterious parameters
   Scalar beta_{2.0f};
-  Scalar alpha_{5e-3};
+  Scalar alpha_{1e-3};
   Scalar k_{0};
 
   WeightScheme weight_scheme_ = WeightScheme::HB;
 
-  Scalar cov_regularizer_ = 1e-50;
+  Scalar cov_regularizer_ = 1e-100;
 
  private:
   void compute_weights_scaling(SigmaPoints& spoints, Scalar& cov_scaling) const;
@@ -52,7 +52,12 @@ void propagate(StateType& mean,
   typename UnscentedTransform<StateType>::SigmaPoints spoints;
 
   ut.toUnscented(mean, cov, spoints);
+
+  std::for_each(spoints.points.begin(), spoints.points.end(),
+                [](StateType& X) { std::cout << X << "\n---\n"; });
   std::for_each(spoints.points.begin(), spoints.points.end(), f);
+  std::for_each(spoints.points.begin(), spoints.points.end(),
+                [](StateType& X) { std::cout << X << "\n---\n"; });
   ut.toMeanCov(spoints, mean, cov);
 }
 
@@ -193,4 +198,4 @@ extern template class UnscentedTransform<ManifoldComp_<
     Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>>>;
 }  // namespace unscented
 
-}
+}  // namespace flib
