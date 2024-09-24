@@ -7,14 +7,17 @@ int main() {
   using namespace flib::unscented;
 
   using MType = ManifoldSO3;
-
+  using Matrix3 = flib::math::MatrixN_<flib::Scalar, 3>;
   MType X;
-  flib::math::MatrixN_<flib::Scalar, 3> S =
-      1 * flib::math::MatrixN_<flib::Scalar, 3>::Identity();
+  Matrix3 S = 0.1 * Matrix3::Identity();
   std::cout << S << "\n";
   std::cout << S.determinant() << "\n";
   propagate<MType>(X, S, [](MType& X) {
-    X.boxplus_inplace(0.1 * Eigen::Vector<flib::Scalar, 3>{1, 0, 0});
+    X.data *= flib::math::Rx<flib::Scalar>(0.2);
+    X.data *= flib::math::Rx<flib::Scalar>(0.2);
+    X.data *= flib::math::Rx<flib::Scalar>(0.2);
+    X.data *= flib::math::Rx<flib::Scalar>(0.2);
+    X.data *= flib::math::Rx<flib::Scalar>(0.2);
   });
   std::cout << X << "\n";
   std::cout << S << "\n";

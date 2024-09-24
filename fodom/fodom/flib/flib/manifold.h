@@ -202,8 +202,7 @@ struct ManifoldSO3
   }
 
   inline auto compare(const ManifoldSO3& other) const {
-    return math::logMapSO3<Scalar>(other.data.transpose() *
-                                   this->data.transpose());
+    return math::logMapSO3<Scalar>(other.data.transpose() * this->data);
   }
 
   inline static const std::string name = "SO3";

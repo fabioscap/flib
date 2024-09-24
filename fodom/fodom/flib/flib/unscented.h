@@ -40,7 +40,7 @@ class UnscentedTransform {
   void compute_sigma_points(const StateType& mean, const CovType& L_scaled,
                             SigmaPoints& spoints) const;
   void mean_from_sigma_points(const SigmaPoints& spoints, StateType& mean,
-                              const size_t n_iters = 1) const;
+                              const size_t n_iters = 10) const;
 };
 
 template <typename StateType>
@@ -52,12 +52,7 @@ void propagate(StateType& mean,
   typename UnscentedTransform<StateType>::SigmaPoints spoints;
 
   ut.toUnscented(mean, cov, spoints);
-
-  std::for_each(spoints.points.begin(), spoints.points.end(),
-                [](StateType& X) { std::cout << X << "\n---\n"; });
   std::for_each(spoints.points.begin(), spoints.points.end(), f);
-  std::for_each(spoints.points.begin(), spoints.points.end(),
-                [](StateType& X) { std::cout << X << "\n---\n"; });
   ut.toMeanCov(spoints, mean, cov);
 }
 
@@ -115,7 +110,6 @@ void UnscentedTransform<StateType>::compute_sigma_points(
   points.resize(2 * state_dim + 1);
   points[0] = mean;
   for (size_t i = 0; i < state_dim; ++i) {
-    // padre pio
     mean.boxplus(L_scaled.col(i), points[2 * i + 1]);
     mean.boxplus((-L_scaled.col(i)), points[2 * i + 2]);
   }
