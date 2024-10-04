@@ -30,9 +30,9 @@ class UnscentedTransform {
   Scalar alpha_{1e-3};
   Scalar k_{0};
 
-  WeightScheme weight_scheme_ = WeightScheme::HB;
+  WeightScheme weight_scheme_ = WeightScheme::UKF;
 
-  Scalar cov_regularizer_ = 1e-100;
+  Scalar cov_regularizer_{1e-100};
 
  private:
   void compute_weights_scaling(SigmaPoints& spoints, Scalar& cov_scaling) const;
@@ -80,19 +80,19 @@ void UnscentedTransform<StateType>::compute_weights_scaling(
 
     // weights 0
     wm0 = lambda / (state_dim + lambda);
-    wc0 = wm0 + (1 - alpha_ * alpha_ + beta_);
+    wc0 = wm0 + (Scalar{1.0} - alpha_ * alpha_ + beta_);
     // weights i
-    wmi = 0.5 / Scalar(state_dim + lambda);
-    wci = 0.5 / Scalar(state_dim + lambda);
+    wmi = Scalar{0.5} / Scalar(state_dim + lambda);
+    wci = Scalar{0.5} / Scalar(state_dim + lambda);
 
     cov_scaling = (state_dim + lambda);
   } else if (weight_scheme_ == WeightScheme::HB) {
     /* hertzberg weights*/
-    wm0 = 1.0 / (2 * state_dim + 1);
+    wm0 = Scalar{1.0} / (Scalar{2} * state_dim + Scalar{1});
     wmi = wm0;
-    wc0 = 0.5;
+    wc0 = Scalar{0.5};
     wci = wc0;
-    cov_scaling = 1.0;
+    cov_scaling = Scalar{1.0};
   } else {
     throw std::runtime_error(
         "UnscentedTransform::compute_weights_scaling| unknown weight scheme");
