@@ -2,7 +2,7 @@
 
 namespace fodom {
 
-IMUOutput::TangentType IMUOutput::vels(const IMUOutput::InputType& u,
+/* IMUOutput::TangentType IMUOutput::vels(const IMUOutput::InputType& u,
                                        Scalar dt) const {
   IMUOutput::TangentType out;
   out.setZero();
@@ -15,7 +15,7 @@ IMUOutput::TangentType IMUOutput::vels(const IMUOutput::InputType& u,
   out.segment<6>(18) = u.tail<6>();
 
   return out;
-}
+} */
 
 IMUOutput& IMUOutput::fwd(const IMUOutput::InputType& u, Scalar dt) {
   p() += v() * dt;

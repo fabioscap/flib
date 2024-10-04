@@ -16,9 +16,14 @@ Odom::Odom(void (*f)(const std::string&),
 void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 
+  sw_->tic();
   // UT
   unscented::propagate<ModelType>(X_, S_,
                                   [&u, &dt](ModelType& x) { x.fwd(u, dt); });
+  // auto d = sw_->toc();
+  std::ostringstream s;
+  s << "UT took:" << std::fixed << sw_->toc() << " seconds\n";
+  log_function_(s.str());
   // add process covariance
   // X_.fwd(u, dt);
   // S_ = CovType::Identity();
@@ -29,6 +34,7 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
 
 void Odom::process_IMU(const IMUMeasurement<double>& meas) {
   // propagate until meas.stamp
+  // TODO if delta time too big then re initialize
   if (stamp_) {
     if (stamp_ > meas.stamp + dt_min_) {
       log_function_("agg sburrat");
@@ -57,16 +63,13 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
       MatrixNM_<Scalar, 6, IMUOutput::dim>::Zero();
   // J.block<6, 6>(0, 9) = MatrixN_<Scalar, 6>::Identity();
   J.block<6, 6>(0, 18) = MatrixN_<Scalar, 6>::Identity();
-  auto Y = J * S_ * J.transpose() + 1e-1 * MatrixN_<Scalar, 6>::Identity();
+  auto Y = J * S_ * J.transpose() + 1e-3 * MatrixN_<Scalar, 6>::Identity();
   auto K = S_ * J.transpose() * Y.inverse();
 
   S_ -= K * J * S_;
   X_.boxplus_inplace(K * res);
 
-  std::ostringstream s;
-  s << std::fixed << (S_.block<3, 3>(0, 0)) << '\n';
-  log_function_(s.str());
-  s << std::fixed << (meas.stamp) << '\n';
-  log_function_(s.str());
+  /*   std::ostringstream s;
+    log_function_(s.str()); */
 }
 }  // namespace fodom

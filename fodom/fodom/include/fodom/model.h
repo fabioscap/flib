@@ -22,7 +22,7 @@ struct IMUOutput : public ManifoldComp_<ManifoldSO3,    // Orientation
 
   // u: random walk bias noise (gyro, acc)
   //    gaussian noise on angular acceleration and jerk
-  TangentType vels(const InputType& u, Scalar dt) const;
+  // TangentType vels(const InputType& u, Scalar dt) const;
 
   IMUOutput& fwd(const InputType& u, Scalar dt);
 
