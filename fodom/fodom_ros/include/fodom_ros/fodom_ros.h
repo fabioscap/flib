@@ -1,3 +1,5 @@
+#include <bit>
+
 #include "fodom/odom.h"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -13,9 +15,8 @@ class FodomROS : public rclcpp::Node {
   FodomROS(const rclcpp::NodeOptions& options);
 
  protected:
-  void timer_callback();
-  void imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg);
   rclcpp::TimerBase::SharedPtr timer_;
+  void timer_callback();
 
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   fodom::Odom robot_;
@@ -27,5 +28,9 @@ class FodomROS : public rclcpp::Node {
 
   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pc_sub_;
+
+  void imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg);
+  void pc_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+  std::vector<Eigen::Vector3<fodom::Scalar>> cloud_;
 };
 }  // namespace fodom_ros

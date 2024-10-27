@@ -15,12 +15,16 @@ using namespace std::chrono_literals;
 
 namespace fodom_ros {
 
+constexpr size_t pc_capacity{2000};
+
 FodomROS::FodomROS(const rclcpp::NodeOptions& options)
     : Node("fodom_ros_node", options) {
   using namespace std::placeholders;
 
   this->declare_parameter<double>("frequency", 1.0);
   dt_ = 1.0 / this->get_parameter("frequency").as_double();
+
+  cloud_.reserve(pc_capacity);
 
   timer_ = this->create_wall_timer(std::chrono::duration<double>(dt_),
                                    std::bind(&FodomROS::timer_callback, this));
@@ -34,6 +38,9 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
   imu_sub_ = this->create_subscription<sensor_msgs::msg::Imu>(
       "imu", 1000, std::bind(&FodomROS::imu_callback, this, _1));
 
+  pc_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+      "cloud", 1000, std::bind(&FodomROS::pc_callback, this, _1));
+
   ROSStopWatch sw([this]() { return this->now(); });
 
   robot_.sw_ = std::make_shared<ROSStopWatch>(sw);
@@ -41,11 +48,12 @@ FodomROS::FodomROS(const rclcpp::NodeOptions& options)
     RCLCPP_INFO(this->get_logger(), "%s", message.c_str());
   };
 
-  // robot_.state().g() << 0.0, 0.0, -0.01;
-  robot_.state().v() << 0.0, 18.849556, 0.0;
-  robot_.state().R() = flib::math::Rz(3.1414 / 2.0);
-  robot_.state().p() << 30.0, 0.0, 0.0;
+  robot_.state().g() << 1.257599, -2.108368, -9.556665;
+  // robot_.state().v() << 0.0, 18.849556, 0.0;
+  // robot_.state().R() = flib::math::Rz(3.1414 / 2.0);
+  // robot_.state().p() << 30.0, 0.0, 0.0;
 }
+
 void FodomROS::timer_callback() {
   geometry_msgs::msg::TransformStamped t;
   geometry_msgs::msg::PoseWithCovarianceStamped msg;
@@ -94,7 +102,7 @@ void FodomROS::timer_callback() {
 }
 
 void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
-  RCLCPP_INFO(this->get_logger(), "processing IMU msg...");
+  // RCLCPP_INFO(this->get_logger(), "processing IMU msg...");
 
   double time_double = time_to_sec(msg->header.stamp);
 
@@ -105,6 +113,33 @@ void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
   m.ang_vel << msg->angular_velocity.x, msg->angular_velocity.y,
       msg->angular_velocity.z;
   robot_.process_IMU(m);
+  // RCLCPP_INFO(this->get_logger(), "...done");
+}
+
+void FodomROS::pc_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+  RCLCPP_INFO(this->get_logger(), "processing PointCloud msg...");
+  double time_double = time_to_sec(msg->header.stamp);
+
+  cloud_.clear();
+
+  if (std::endian::native != std::endian::little != msg->is_bigendian) {
+    throw std::runtime_error("nooo vaffanculooooo ");
+    // TODO revert the order of the bytes of data
+  }
+
+  const size_t x_offset = msg->fields.at(0).offset;
+  const size_t y_offset = msg->fields.at(1).offset;
+  const size_t z_offset = msg->fields.at(2).offset;
+  const size_t t_offset =
+      std::find_if(msg->fields.begin(), msg->fields.end(), [](auto& field) {
+        return field.name == "time";
+      })->offset;
+
+  size_t point_count = msg->width * msg->height;
+
+  RCLCPP_INFO(this->get_logger(), "%d %d", msg->width, msg->height);
+
+  // robot_.process_cloud(cloud);
   RCLCPP_INFO(this->get_logger(), "...done");
 }
 
