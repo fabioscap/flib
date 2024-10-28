@@ -31,6 +31,6 @@ class FodomROS : public rclcpp::Node {
 
   void imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg);
   void pc_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
-  std::vector<Eigen::Vector3<fodom::Scalar>> cloud_;
+  std::vector<fodom::Point<fodom::Scalar>> cloud_;
 };
 }  // namespace fodom_ros

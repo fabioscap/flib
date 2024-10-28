@@ -14,4 +14,11 @@ struct IMUMeasurement {
   Vector3_<Scalar_> lin_acc;  // m/s^2
 };
 
+template <typename Scalar_>
+struct Point {
+  Point(Scalar x, Scalar y, Scalar z, Scalar t) : xyz{x, y, z}, stamp{t} {}
+  Vector3_<Scalar_> xyz;  // m
+  Scalar stamp;           // s
+};
+
 }  // namespace fodom

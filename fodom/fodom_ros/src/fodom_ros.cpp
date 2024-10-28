@@ -9,6 +9,7 @@
 #include "fodom_ros/utils.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 
 using namespace std::chrono_literals;
@@ -118,28 +119,29 @@ void FodomROS::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg) {
 
 void FodomROS::pc_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
   RCLCPP_INFO(this->get_logger(), "processing PointCloud msg...");
-  double time_double = time_to_sec(msg->header.stamp);
 
   cloud_.clear();
 
-  if (std::endian::native != std::endian::little != msg->is_bigendian) {
+  if ((std::endian::native != std::endian::little) != msg->is_bigendian) {
     throw std::runtime_error("nooo vaffanculooooo ");
     // TODO revert the order of the bytes of data
   }
 
-  const size_t x_offset = msg->fields.at(0).offset;
-  const size_t y_offset = msg->fields.at(1).offset;
-  const size_t z_offset = msg->fields.at(2).offset;
-  const size_t t_offset =
-      std::find_if(msg->fields.begin(), msg->fields.end(), [](auto& field) {
-        return field.name == "time";
-      })->offset;
+  // the timestamps of single points start from the stamp of the message
+  double t = msg->header.stamp.sec + msg->header.stamp.nanosec * 1e-9;
 
-  size_t point_count = msg->width * msg->height;
+  // TODO check the actual type because it might be double
+  sensor_msgs::PointCloud2Iterator<float> iter_p(*msg, "x");
+  sensor_msgs::PointCloud2Iterator<float> iter_t(*msg, "time");
+  while (iter_p != iter_p.end()) {
+    cloud_.emplace_back(fodom::Scalar(iter_p[0]), fodom::Scalar(iter_p[1]),
+                        fodom::Scalar(iter_p[2]), fodom::Scalar(*iter_t + t));
+    ++iter_p;
+    ++iter_t;
+  }
+  RCLCPP_INFO(this->get_logger(), "%lf", t);
+  robot_.process_cloud(cloud_);
 
-  RCLCPP_INFO(this->get_logger(), "%d %d", msg->width, msg->height);
-
-  // robot_.process_cloud(cloud);
   RCLCPP_INFO(this->get_logger(), "...done");
 }
 

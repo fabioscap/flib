@@ -21,9 +21,7 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
   unscented::propagate<ModelType>(X_, S_,
                                   [&u, &dt](ModelType& x) { x.fwd(u, dt); });
   // auto d = sw_->toc();
-  std::ostringstream s;
-  s << "UT took:" << std::fixed << sw_->toc() << " seconds\n";
-  log_function_(s.str());
+
   // add process covariance
   // X_.fwd(u, dt);
   // S_ = CovType::Identity();
@@ -32,7 +30,7 @@ void Odom::propagate(const InputType& u, const Scalar dt) {
   stamp_ += dt;
 }
 
-void Odom::process_IMU(const IMUMeasurement<double>& meas) {
+void Odom::process_IMU(const IMUMeasurement<Scalar>& meas) {
   // propagate until meas.stamp
   // TODO if delta time too big then re initialize
   if (stamp_) {
@@ -68,8 +66,11 @@ void Odom::process_IMU(const IMUMeasurement<double>& meas) {
 
   S_ -= K * J * S_;
   X_.boxplus_inplace(K * res);
+}
 
-  /*   std::ostringstream s;
-    log_function_(s.str()); */
+void Odom::process_cloud(const std::vector<Point<Scalar>>& cloud) {
+  std::ostringstream s;
+  s << std::fixed << cloud.at(cloud.size() - 1).stamp << '\n';
+  log_function_(s.str());
 }
 }  // namespace fodom

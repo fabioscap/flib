@@ -22,6 +22,7 @@ class Odom {
           std::make_shared<ChronoStopWatch>());
 
   void process_IMU(const IMUMeasurement<Scalar>& meas);
+  void process_cloud(const std::vector<Point<Scalar>>& cloud);
 
   void propagate(const InputType& u, const Scalar dt);
 
