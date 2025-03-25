@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 project(flib)
 
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/flib/*.h")

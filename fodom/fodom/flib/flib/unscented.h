@@ -15,6 +15,7 @@ class UnscentedTransform {
     std::vector<StateType> points;
     Scalar wm0, wc0, wmi, wci;
   };
+  using Scalar = typename StateType::Scalar;
 
   using CovType = Eigen::Matrix<Scalar, StateType::dim, StateType::dim>;
 
@@ -181,15 +182,4 @@ void UnscentedTransform<StateType>::toUnscented(const StateType& mean,
 }
 
 }  // namespace unscented
-}  // namespace flib
-
-namespace flib {
-
-namespace unscented {
-using namespace manifold;
-extern template class UnscentedTransform<ManifoldComp_<
-    ManifoldSO3, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>,
-    Euclidean_<3>, Euclidean_<3>, Euclidean_<3>, Euclidean_<3>>>;
-}  // namespace unscented
-
 }  // namespace flib
