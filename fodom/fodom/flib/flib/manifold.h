@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "common.h"
+#include "manifold_impl.h"
 #include "math.h"
 
 namespace flib {
@@ -18,7 +19,7 @@ struct ManifoldBase_ {
   DataType data;
 
   static constexpr size_t dim = dim_;
-  using TangentType = Eigen::Vector<Scalar, dim>;
+  using TangentType = Eigen::Vector<double, dim>;
 
   // binds to anything that can be used to construct
   // data, and hopefully nothing else
@@ -37,9 +38,9 @@ struct ManifoldBase_ {
 
   template <typename D>
   Derived boxplus(const Eigen::MatrixBase<D>& dsp) const {
-    // Derived out(*static_cast<const Derived*>(this));
-    // out.perturb(dsp);
-    return Derived(*static_cast<const Derived*>(this)).perturb(dsp);
+    Derived out(*static_cast<const Derived*>(this));
+    out.perturb(dsp);
+    return out;
   }
 
   template <typename D>
@@ -89,56 +90,26 @@ std::ostream& operator<<(std::ostream& os,
   return os << t.data;
 }
 
-namespace _private {
-template <typename... Types>
-struct ManifoldCompContainer;
-
-template <typename MBase>
-struct ManifoldCompContainer<MBase> {
-  static constexpr size_t dim = MBase::dim;
-  MBase data;
-
-  template <typename Derived>
-  inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {
-    data.perturb(dsp);
-  }
-};
-
-template <typename First, typename... Rest>
-struct ManifoldCompContainer<First, Rest...> {
-  First data;
-  using RestType = ManifoldCompContainer<Rest...>;
-  RestType rest;
-
-  static constexpr size_t dim = First::dim + RestType::dim;
-
-  template <typename Derived>
-  inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {
-    this->data.perturb(dsp.template head<First::dim>());
-    rest.perturb(dsp.template tail<RestType::dim>());
-  }
-};
-
-template <typename... Types>
-std::ostream& operator<<(std::ostream& os,
-                         const _private::ManifoldCompContainer<Types...>& t) {
-  return os << t.data << "\n" << t.rest;
-}
-template <typename T>
-std::ostream& operator<<(std::ostream& os,
-                         const _private::ManifoldCompContainer<T>& t) {
-  return os << t.data;
-}
-}  // namespace _private
-
 template <typename... Types>
 struct ManifoldComp_
     : public ManifoldBase_<ManifoldComp_<Types...>,
                            _private::ManifoldCompContainer<Types...>,
                            _private::ManifoldCompContainer<Types...>::dim> {
+  using ThisType = ManifoldComp_<Types...>;
+  using TangentType = typename ManifoldBase_<
+      ManifoldComp_<Types...>, _private::ManifoldCompContainer<Types...>,
+      _private::ManifoldCompContainer<Types...>::dim>::TangentType;
+
   template <typename Derived>
   inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {
     this->data.perturb(dsp);
+  }
+
+  inline auto compare(const ThisType& other) const {
+    TangentType d;
+    this->data.compare(other.data, d);
+
+    return d;
   }
 };
 
@@ -166,7 +137,8 @@ struct Euclidean_ : public ManifoldBase_<Euclidean_<Scalar_, dim_>,
 };
 
 template <typename Scalar_>
-struct SO3_ : public ManifoldBase_<SO3_<Scalar>, math::MatrixN_<Scalar, 3>, 3> {
+struct SO3_
+    : public ManifoldBase_<SO3_<Scalar_>, math::MatrixN_<Scalar_, 3>, 3> {
   using Scalar = Scalar_;
   using DataType = math::MatrixN_<Scalar, 3>;
   using BaseType = ManifoldBase_<SO3_, DataType, 3>;

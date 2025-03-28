@@ -10,31 +10,31 @@ find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 add_subdirectory(flib)
 
-add_library(fodom SHARED 
-            src/model.cpp
-            src/odom.cpp
-            src/utils.cpp
-)
-target_link_libraries(fodom PUBLIC Eigen3::Eigen flib)
+# add_library(fodom SHARED 
+#             src/model.cpp
+#             src/odom.cpp
+#             src/utils.cpp
+# )
+# target_link_libraries(fodom PUBLIC Eigen3::Eigen flib)
 
-target_include_directories(fodom
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
+# target_include_directories(fodom
+#     PUBLIC
+#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#     $<INSTALL_INTERFACE:include>
+# )
 
 # Install the library and headers
-install(TARGETS fodom
-        EXPORT fodomTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include)
+# install(TARGETS fodom
+#         EXPORT fodomTargets
+#         LIBRARY DESTINATION lib
+#         ARCHIVE DESTINATION lib
+#         RUNTIME DESTINATION bin
+#         INCLUDES DESTINATION include)
 
-install(EXPORT fodomTargets
-        FILE fodomTargets.cmake
-        DESTINATION lib/cmake/fodom)
-install(FILES "fodomConfig.cmake" DESTINATION lib/cmake/fodom)
+# install(EXPORT fodomTargets
+#         FILE fodomTargets.cmake
+#         DESTINATION lib/cmake/fodom)
+# install(FILES "fodomConfig.cmake" DESTINATION lib/cmake/fodom)
 
 install(DIRECTORY include/ DESTINATION include)
 
