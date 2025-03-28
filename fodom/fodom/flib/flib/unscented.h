@@ -2,20 +2,19 @@
 
 #include <Eigen/Dense>
 
-#include "common.h"
-
 namespace flib {
 namespace unscented {
 
 template <typename StateType>
 class UnscentedTransform {
  public:
+  using Scalar = typename StateType::Scalar;
+
   enum class WeightScheme { UKF, HB };
   struct SigmaPoints {
     std::vector<StateType> points;
     Scalar wm0, wc0, wmi, wci;
   };
-  using Scalar = typename StateType::Scalar;
 
   using CovType = Eigen::Matrix<Scalar, StateType::dim, StateType::dim>;
 

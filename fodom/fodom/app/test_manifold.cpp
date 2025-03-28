@@ -8,6 +8,22 @@ constexpr size_t dim_f();
 template <typename TupleType, size_t Idx>
 constexpr size_t off_f();
 
+template <typename Derived, typename DataType_, size_t dim_>
+struct ManifoldBase_ {
+  using DataType = DataType_;
+  DataType data;
+
+  static constexpr size_t dim = dim_;
+  using TangentType = Eigen::Vector<double, dim>;
+
+  template <typename D>
+  Derived boxplus(const Eigen::MatrixBase<D>& dsp) const {
+    Derived out(*static_cast<const Derived*>(this));
+    out.perturb(dsp);
+    return out;
+  }
+};
+
 template <typename... Manifolds_>
 struct ManifoldComp_ : public ManifoldBase_<ManifoldComp_<Manifolds_...>,
                                             std::tuple<Manifolds_...>,
@@ -16,8 +32,9 @@ struct ManifoldComp_ : public ManifoldBase_<ManifoldComp_<Manifolds_...>,
   using BaseType =
       ManifoldBase_<ManifoldComp_, DataType, (Manifolds_::dim + ... + 0)>;
 
-  using BaseType::ManifoldBase_;
-  using TangentType = typename BaseType::TangentType;
+  using Scalar = double;
+  using TangentType =
+      typename Eigen::Vector<Scalar, (Manifolds_::dim + ... + 0)>;
 
   template <size_t I>
   static constexpr size_t dimi = dim_f<DataType, I>();
@@ -76,48 +93,6 @@ constexpr size_t off_f() {
 }
 }  // namespace flib_old
 
-void basic_test() {
-  using namespace flib::manifold;
-  using E = Euclidean_<double, 3>;
-
-  E e1;
-
-  E e2(Eigen::Vector3d{4, 5, 6});
-
-  E::TangentType d = e1.compare(e2);
-
-  e1.perturb(d);
-
-  auto x = e1.boxplus(d);
-  e1.boxplus(d, x);
-
-  std::cout << x << std::endl;
-
-  SO3_<double> R;
-
-  SO3_<double>::TangentType om{1.0, 0.0, 1.0};
-
-  R.perturb(om);
-
-  auto R2(R);
-
-  auto dr = R.compare(R2.boxplus(om));
-
-  std::cout << R << "\n" << dr << std::endl;
-
-  using CompType = ManifoldComp_<Euclidean_<double, 10>, SO3_<double>,
-                                 Euclidean_<double, 3>, SO3_<double>>;
-  CompType X, X2;
-
-  CompType::TangentType xt = CompType::TangentType::Ones();
-
-  X2.perturb(xt);
-
-  std::cout << X2 << std::endl;
-
-  std::cout << X.compare(X) << std::endl;
-}
-
 #include "nanobench.h"
 
 template <typename F>
@@ -130,35 +105,53 @@ void benchmark(F&& f, const std::string& name) {
              nanobench::doNotOptimizeAway(result);
              ;
            })
-      .relative(true);
+      .relative(true)
+      .minEpochIterations(40000);
 }
 
 int main() {
   using namespace flib::manifold;
   // basic_test();
-  using EType = SO3_<double>;
-  using MType = ManifoldComp_<EType, EType, EType, EType, EType, EType, EType>;
+  using EType = Euclidean_<double, 400>;
+  using MType = ManifoldComp_<EType, EType, EType, EType, EType, EType, EType,
+                              EType, EType, EType, EType, EType, EType, EType>;
   using MTypeTuple =
-      flib_old::ManifoldComp_<EType, EType, EType, EType, EType, EType, EType>;
+      flib_old::ManifoldComp_<EType, EType, EType, EType, EType, EType, EType,
+                              EType, EType, EType, EType, EType, EType, EType>;
 
-  MType R;
+  MType R, R2;
   MType::TangentType u = MType::TangentType::Ones();
 
-  MTypeTuple Rt;
+  MTypeTuple Rt, Rt2;
   auto ut = Eigen::Vector<double, 70>::Ones();
-
+  benchmark(
+      [&] {
+        auto out = Rt.compare(Rt2.boxplus(ut));
+        return std::ref(out);
+      },
+      "tuple compare");
   benchmark(
       [&] {
         R.perturb(u);
         return std::ref(R);
       },
-      "1");
+      "no tuple perturb");
   benchmark(
       [&] {
         Rt.perturb(u);
         return std::ref(Rt);
       },
-      "2");
+      "tuple perturb");
+
+  R.perturb(u);
+  Rt.perturb(ut);
+
+  benchmark(
+      [&] {
+        auto out = R.compare(R2.boxplus(u));
+        return std::ref(out);
+      },
+      "no tuple compare");
 
   return 0;
 }
