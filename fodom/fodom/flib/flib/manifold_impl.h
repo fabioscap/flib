@@ -13,6 +13,12 @@ struct ManifoldCompContainer<MBase> {
 
   MBase data;
 
+  template <size_t n>
+  auto& get() {
+    static_assert("ManifoldCompContainer::get index out of range" && n == 0);
+    return data;
+  }
+
   template <typename Derived>
   inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {
     data.perturb(dsp);
@@ -35,6 +41,17 @@ struct ManifoldCompContainer<FirstType, Rest...> {
   RestType rest;
 
   static constexpr size_t dim = FirstType::dim + RestType::dim;
+
+  static_assert("Ensure all components have the same Scalar type" &&
+                ((std::is_same<typename Rest::Scalar, Scalar>::value) && ...));
+
+  template <size_t n>
+  auto& get() {
+    if constexpr (n > 0)
+      return rest.template get<n - 1>();
+    else
+      return data;
+  }
 
   template <typename Derived>
   inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {

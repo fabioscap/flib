@@ -4,7 +4,6 @@
 #include <iostream>
 #include <utility>
 
-#include "common.h"
 #include "manifold_impl.h"
 #include "math.h"
 
@@ -16,10 +15,11 @@ constexpr bool log = false;
 template <typename Derived, typename DataType_, size_t dim_>
 struct ManifoldBase_ {
   using DataType = DataType_;
+  using Scalar = typename DataType::Scalar;
   DataType data;
 
   static constexpr size_t dim = dim_;
-  using TangentType = Eigen::Vector<double, dim>;
+  using TangentType = Eigen::Vector<Scalar, dim>;
 
   // binds to anything that can be used to construct
   // data, and hopefully nothing else
@@ -96,9 +96,18 @@ struct ManifoldComp_
                            _private::ManifoldCompContainer<Types...>,
                            _private::ManifoldCompContainer<Types...>::dim> {
   using ThisType = ManifoldComp_<Types...>;
-  using TangentType = typename ManifoldBase_<
-      ManifoldComp_<Types...>, _private::ManifoldCompContainer<Types...>,
-      _private::ManifoldCompContainer<Types...>::dim>::TangentType;
+  using DataType = _private::ManifoldCompContainer<Types...>;
+  static constexpr size_t dim = _private::ManifoldCompContainer<Types...>::dim;
+  using BaseType = ManifoldBase_<ThisType, DataType, dim>;
+
+  using BaseType::Scalar;
+  using typename BaseType::TangentType;
+
+  // functions to get elements
+  template <size_t n>
+  auto& get() {
+    return this->data.template get<n>();
+  }
 
   template <typename Derived>
   inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {
