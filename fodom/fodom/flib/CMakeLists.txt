@@ -24,7 +24,3 @@ install(TARGETS flib
         DESTINATION lib
         INCLUDES DESTINATION include/flib)
 install(FILES "flibConfig.cmake" DESTINATION lib/cmake/flib)
-
-
-add_executable(test flib/manifold.cpp)
-target_link_libraries(test flib)
