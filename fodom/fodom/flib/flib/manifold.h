@@ -108,6 +108,10 @@ struct ManifoldComp_
   auto& get() {
     return this->data.template get<n>();
   }
+  template <size_t n>
+  const auto& get() const {
+    return this->data.template get<n>();
+  }
 
   template <typename Derived>
   inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {
@@ -167,9 +171,6 @@ struct SO3_
 
   inline static const std::string name = "SO3";
 };
-
-template <typename Scalar>
-using ManifoldSO3_ = SO3_<Scalar>;
 
 }  // namespace manifold
 }  // namespace flib

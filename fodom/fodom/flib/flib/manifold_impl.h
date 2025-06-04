@@ -18,6 +18,11 @@ struct ManifoldCompContainer<MBase> {
     static_assert("ManifoldCompContainer::get index out of range" && n == 0);
     return data;
   }
+  template <size_t n>
+  const auto& get() const {
+    static_assert("ManifoldCompContainer::get index out of range" && n == 0);
+    return data;
+  }
 
   template <typename Derived>
   inline void perturb(const Eigen::MatrixBase<Derived>& dsp) {
@@ -47,6 +52,14 @@ struct ManifoldCompContainer<FirstType, Rest...> {
 
   template <size_t n>
   auto& get() {
+    if constexpr (n > 0)
+      return rest.template get<n - 1>();
+    else
+      return data;
+  }
+
+  template <size_t n>
+  const auto& get() const {
     if constexpr (n > 0)
       return rest.template get<n - 1>();
     else
