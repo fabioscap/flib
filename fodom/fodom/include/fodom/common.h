@@ -1,10 +1,9 @@
 #pragma once
 
-#include "flib/common.h"
 #include "flib/math.h"
 
 namespace fodom {
-using Scalar = flib::Scalar;
+using Scalar = double;
 using namespace flib::math;
 
 template <typename Scalar_>

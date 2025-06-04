@@ -8,16 +8,17 @@ namespace fodom {
 
 using namespace flib::manifold;
 
-struct IMUOutput : public ManifoldComp_<ManifoldSO3,    // Orientation
-                                        Euclidean_<3>,  // Position
-                                        Euclidean_<3>,  // Velocity
-                                        Euclidean_<3>,  // Bias Gyro
-                                        Euclidean_<3>,  // Bias Acc
-                                        Euclidean_<3>,  // Gravity Vector global
-                                                        // frame (Should be S2?)
-                                        Euclidean_<3>,  // Angular Velocity
-                                        Euclidean_<3>   // Acceleration
-                                        > {
+struct IMUOutput
+    : public ManifoldComp_<SO3_<Scalar>,           // Orientation
+                           Euclidean_<Scalar, 3>,  // Position
+                           Euclidean_<Scalar, 3>,  // Velocity
+                           Euclidean_<Scalar, 3>,  // Bias Gyro
+                           Euclidean_<Scalar, 3>,  // Bias Acc
+                           Euclidean_<Scalar, 3>,  // Gravity Vector global
+                                                   // frame (Should be S2?)
+                           Euclidean_<Scalar, 3>,  // Angular Velocity
+                           Euclidean_<Scalar, 3>   // Acceleration
+                           > {
   using InputType = Vector_<Scalar, 12>;
 
   // u: random walk bias noise (gyro, acc)
@@ -27,22 +28,22 @@ struct IMUOutput : public ManifoldComp_<ManifoldSO3,    // Orientation
   IMUOutput& fwd(const InputType& u, Scalar dt);
 
   // clang-format off
-  inline ManifoldSO3::DataType& R() { return std::get<0>(this->data).data; }
-  inline Euclidean_<3>::DataType& p() { return std::get<1>(this->data).data; }
-  inline Euclidean_<3>::DataType& v() { return std::get<2>(this->data).data; }
-  inline Euclidean_<3>::DataType& bg() { return std::get<3>(this->data).data; }
-  inline Euclidean_<3>::DataType& ba() { return std::get<4>(this->data).data; }
-  inline Euclidean_<3>::DataType& g() { return std::get<5>(this->data).data; }
-  inline Euclidean_<3>::DataType& om() { return std::get<6>(this->data).data; }
-  inline Euclidean_<3>::DataType& a() { return std::get<7>(this->data).data; }
-  inline const ManifoldSO3::DataType& R()const { return std::get<0>(this->data).data; }
-  inline const Euclidean_<3>::DataType& p()const { return std::get<1>(this->data).data; }
-  inline const Euclidean_<3>::DataType& v()const { return std::get<2>(this->data).data; }
-  inline const Euclidean_<3>::DataType& bg()const { return std::get<3>(this->data).data; }
-  inline const Euclidean_<3>::DataType& ba()const { return std::get<4>(this->data).data; }
-  inline const Euclidean_<3>::DataType& g()const { return std::get<5>(this->data).data; }
-  inline const Euclidean_<3>::DataType& om()const { return std::get<6>(this->data).data; }
-  inline const Euclidean_<3>::DataType& a()const { return std::get<7>(this->data).data; }
+  inline SO3_<Scalar>::DataType& R() { return data.get<0>().data; }
+  inline Euclidean_<Scalar,3>::DataType& p() { return data.get<1>().data; }
+  inline Euclidean_<Scalar,3>::DataType& v() { return data.get<2>().data; }
+  inline Euclidean_<Scalar,3>::DataType& bg() { return data.get<3>().data; }
+  inline Euclidean_<Scalar,3>::DataType& ba() { return data.get<4>().data; }
+  inline Euclidean_<Scalar,3>::DataType& g() { return data.get<5>().data; }
+  inline Euclidean_<Scalar,3>::DataType& om() { return data.get<6>().data; }
+  inline Euclidean_<Scalar,3>::DataType& a() { return data.get<7>().data; }
+  inline const SO3_<Scalar>::DataType& R()const { return data.get<0>().data; }
+  inline const Euclidean_<Scalar,3>::DataType& p()const { return data.get<1>().data; }
+  inline const Euclidean_<Scalar,3>::DataType& v()const { return data.get<2>().data; }
+  inline const Euclidean_<Scalar,3>::DataType& bg()const { return data.get<3>().data; }
+  inline const Euclidean_<Scalar,3>::DataType& ba()const { return data.get<4>().data; }
+  inline const Euclidean_<Scalar,3>::DataType& g()const { return data.get<5>().data; }
+  inline const Euclidean_<Scalar,3>::DataType& om()const { return data.get<6>().data; }
+  inline const Euclidean_<Scalar,3>::DataType& a()const { return data.get<7>().data; }
   // clang-format on
 };
 

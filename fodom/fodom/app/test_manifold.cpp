@@ -1,4 +1,5 @@
 #include "flib/manifold.h"
+// #include "synthetic/synthetic.h"
 
 namespace flib_old {
 using namespace flib::manifold;
@@ -110,26 +111,22 @@ void benchmark(F&& f, const std::string& name) {
 }
 
 int main() {
+  size_t c{0};
+
   using namespace flib::manifold;
-  // basic_test();
-  using EType = Euclidean_<double, 400>;
-  using MType = ManifoldComp_<EType, EType, EType, EType, EType, EType, EType,
-                              EType, EType, EType, EType, EType, EType, EType>;
+  std::cerr << "basic test" << std::endl;
+
+  using EType = Euclidean_<double, 3>;
+  using MType = ManifoldComp_<EType, EType, EType, EType, EType, EType, EType>;
   using MTypeTuple =
-      flib_old::ManifoldComp_<EType, EType, EType, EType, EType, EType, EType,
-                              EType, EType, EType, EType, EType, EType, EType>;
+      flib_old::ManifoldComp_<EType, EType, EType, EType, EType, EType, EType>;
 
   MType R, R2;
   MType::TangentType u = MType::TangentType::Ones();
 
   MTypeTuple Rt, Rt2;
-  auto ut = Eigen::Vector<double, 70>::Ones();
-  benchmark(
-      [&] {
-        auto out = Rt.compare(Rt2.boxplus(ut));
-        return std::ref(out);
-      },
-      "tuple compare");
+  auto ut = Eigen::Vector<double, 21>::Ones();
+
   benchmark(
       [&] {
         R.perturb(u);
@@ -148,10 +145,19 @@ int main() {
 
   benchmark(
       [&] {
-        auto out = R.compare(R2.boxplus(u));
-        return std::ref(out);
+        u = R.compare(R2.boxplus(u));
+        return std::ref(u);
       },
       "no tuple compare");
+
+  benchmark(
+      [&] {
+        u = Rt.compare(Rt2.boxplus(u));
+        return std::ref(u);
+      },
+      "tuple compare");
+
+  std::cout << u << std::endl;
 
   return 0;
 }

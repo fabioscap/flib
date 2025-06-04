@@ -16,7 +16,7 @@ Odom::Odom(void (*f)(const std::string&),
 void Odom::propagate(const InputType& u, const Scalar dt) {
   // might want to look into error state KFs
 
-  sw_->tic();
+  // sw_->tic();
   // UT
   unscented::propagate<ModelType>(X_, S_,
                                   [&u, &dt](ModelType& x) { x.fwd(u, dt); });
