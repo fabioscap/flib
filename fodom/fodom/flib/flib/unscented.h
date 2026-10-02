@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <limits>
 
 namespace flib {
 namespace unscented {
@@ -32,7 +33,7 @@ class UnscentedTransform {
 
   WeightScheme weight_scheme_ = WeightScheme::UKF;
 
-  Scalar cov_regularizer_{1e-100};
+  Scalar cov_regularizer_{std::numeric_limits<Scalar>::epsilon()};
 
  private:
   void compute_weights_scaling(SigmaPoints& spoints, Scalar& cov_scaling) const;
@@ -128,10 +129,10 @@ void UnscentedTransform<StateType>::mean_from_sigma_points(
 
   for (size_t i = 0; i < n_iters; ++i) {
     // compute tangent mean displacement
-    TangentType displacement = wm0 * mean.boxminus(points.at(0));
+    TangentType displacement = wm0 * points.at(0).boxminus(mean);
     for (size_t j = 1; j < points.size(); ++j) {
       const StateType& Xj = points.at(j);
-      displacement += wmi * mean.boxminus(Xj);
+      displacement += wmi * Xj.boxminus(mean);
     }
     // add it to the mean
     mean.boxplus_inplace(displacement);
