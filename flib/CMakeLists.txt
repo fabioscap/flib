@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
 project(flib)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
@@ -24,3 +28,8 @@ install(TARGETS flib
         DESTINATION lib
         INCLUDES DESTINATION include/flib)
 install(FILES "flibConfig.cmake" DESTINATION lib/cmake/flib)
+
+option(FLIB_BUILD_APPS "Build flib examples and benchmarks" ON)
+if(FLIB_BUILD_APPS)
+  add_subdirectory(app)
+endif()
